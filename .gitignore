@@ -1,0 +1,8 @@
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/*.log
+
+# Local development files
+*.local
+.env
