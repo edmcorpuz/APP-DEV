@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Homepage | APP-DEV</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/home.js" defer></script>
+</head>
+<body>
+  <header class="site-header"><a class="brand" href="/">APP<span>DEV</span></a><span class="session-label">Authenticated session</span></header>
+  <main class="home-layout">
+    <section class="auth-card home-card" aria-labelledby="home-title">
+      <div class="success-mark" aria-hidden="true">✓</div>
+      <p class="eyebrow">YOU'RE IN</p>
+      <h1 id="home-title">Welcome home.</h1>
+      <p class="subtitle">Your request was successful. This simple homepage is available after signup or login.</p>
+      <p class="demo-note">This is a classroom demo. Accounts are stored in a JSON-compatible JavaScript array and reset when the backend restarts.</p>
+      <p class="form-status" id="form-status" role="alert" aria-live="polite" hidden></p>
+      <button id="logout" class="primary-button" type="button">Log out</button>
+    </section>
+  </main>
+  <footer>POST-only API · Express.js · APP-DEV</footer>
+</body>
+</html>

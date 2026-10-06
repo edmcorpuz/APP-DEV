@@ -1,12 +1,20 @@
 {
   "name": "app-dev",
   "version": "1.0.0",
-  "main": "index.js",
+  "type": "module",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "bun server.js",
+    "dev": "bun --watch server.js",
+    "test": "bun test"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "Express POST-only signup and login activity with simple HTML pages",
+  "private": true,
+  "dependencies": {
+    "express": "^5.2.1",
+    "express-session": "^1.19.0"
+  }
 }
