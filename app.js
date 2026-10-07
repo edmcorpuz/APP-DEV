@@ -2,15 +2,14 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
-import session from 'express-session';
+import cookieParser from 'cookie-parser';
 
 import { users } from './database/users.js';
 import { hashPassword, verifyPassword } from './lib/passwords.js';
+import { createAuth } from './lib/auth.js';
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
-const cookieName = 'appdev.sid';
-
-const publicUser = ({ id, email, username }) => ({ id, email, username });
+const publicUser = ({ id, email, username, bio }) => ({ id, email, username, bio });
 const reply = (res, status, message, user) => res.status(status).json({
   status,
   message,
@@ -20,36 +19,23 @@ const hasFields = (body, fields) => fields.every((field) =>
   typeof body?.[field] === 'string' && body[field].trim().length > 0,
 );
 
-async function startSession(req, userId) {
-  // Regeneration prevents reuse of a pre-login session ID.
-  await new Promise((resolve, reject) => req.session.regenerate((error) => error ? reject(error) : resolve()));
-  req.session.userId = userId;
-  await new Promise((resolve, reject) => req.session.save((error) => error ? reject(error) : resolve()));
-}
-
-export function createApp({ userStore = users, sessionSecret, production = false } = {}) {
-  if (production && !sessionSecret) throw new Error('SESSION_SECRET is required in production.');
+export function createApp({ userStore = users, jwtSecret, production = false } = {}) {
+  if (production && (!jwtSecret || jwtSecret.length < 32)) {
+    throw new Error('JWT_SECRET must be at least 32 characters in production.');
+  }
   const app = express();
+  const { setToken, clearToken, requireAuth } = createAuth({
+    secret: jwtSecret || randomBytes(32).toString('hex'),
+    userStore,
+    production,
+  });
   app.disable('x-powered-by');
-  if (production) app.set('trust proxy', 1);
-
-  // Only the API is POST-only. Browsers still use GET to load HTML/CSS/JS.
+  app.use(express.json({ limit: '8kb' }));
+  app.use(cookieParser());
   app.use('/api', (req, res, next) => {
     res.set('Cache-Control', 'no-store');
-    if (req.method !== 'POST') {
-      res.set('Allow', 'POST');
-      return reply(res, 405, 'This API only accepts POST requests.');
-    }
     next();
   });
-  app.use(express.json({ limit: '8kb' }));
-  app.use(session({
-    name: cookieName,
-    secret: sessionSecret || randomBytes(32).toString('hex'),
-    resave: false,
-    saveUninitialized: false,
-    cookie: { httpOnly: true, sameSite: 'lax', secure: production, maxAge: 60 * 60 * 1000 },
-  }));
 
   app.post('/api/signup', async (req, res) => {
     if (!hasFields(req.body, ['email', 'username', 'password'])) {
@@ -58,6 +44,10 @@ export function createApp({ userStore = users, sessionSecret, production = false
     const email = req.body.email.trim().toLowerCase();
     const username = req.body.username.trim();
     const password = req.body.password;
+    const bio = req.body.bio ?? '';
+    if (typeof bio !== 'string' || bio.length > 500) {
+      return reply(res, 400, 'Bio must be text with at most 500 characters.');
+    }
     if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return reply(res, 400, 'Enter a valid email address.');
     }
@@ -71,9 +61,9 @@ export function createApp({ userStore = users, sessionSecret, production = false
     const passwordHash = await hashPassword(password);
     // Check again after hashing to prevent simultaneous duplicate signups.
     if (exists()) return reply(res, 409, 'An account with this email or username already exists.');
-    const user = { id: randomUUID(), email, username, passwordHash };
+    const user = { id: randomUUID(), email, username, bio: bio.trim(), passwordHash };
     userStore.push(user);
-    await startSession(req, user.id);
+    setToken(res, user);
     return reply(res, 201, 'Account created successfully.', user);
   });
 
@@ -89,25 +79,34 @@ export function createApp({ userStore = users, sessionSecret, production = false
     if (!user || !await verifyPassword(req.body.password, user.passwordHash)) {
       return reply(res, 401, 'Invalid username or password.');
     }
-    await startSession(req, user.id);
+    setToken(res, user);
     return reply(res, 200, 'Logged in successfully.', user);
   });
 
-  app.post('/api/logout', async (req, res) => {
-    await new Promise((resolve, reject) => req.session.destroy((error) => error ? reject(error) : resolve()));
-    res.clearCookie(cookieName, { httpOnly: true, sameSite: 'lax', secure: production });
+  app.post('/api/logout', (req, res) => {
+    clearToken(res);
     return reply(res, 200, 'Logged out successfully.');
   });
 
+  app.get('/api/me', requireAuth, (req, res) => reply(res, 200, 'Your profile.', req.user));
+  app.get('/api/users', requireAuth, (req, res) => {
+    res.json({ status: 200, users: userStore.map(publicUser) });
+  });
+
+  app.all(['/api/signup', '/api/login', '/api/logout'], (req, res) => {
+    res.set('Allow', 'POST');
+    return reply(res, 405, 'This endpoint only accepts POST requests.');
+  });
+  app.all(['/api/me', '/api/users'], (req, res) => {
+    res.set('Allow', 'GET, HEAD');
+    return reply(res, 405, 'This endpoint only accepts GET requests.');
+  });
   app.use('/api', (req, res) => reply(res, 404, 'API endpoint not found.'));
 
-  const loggedIn = (req) => userStore.some((user) => user.id === req.session.userId);
-  app.get('/', (req, res) => res.redirect(loggedIn(req) ? '/home.html' : '/signup.html'));
-  app.get('/home.html', (req, res) => {
-    res.set('Cache-Control', 'no-store');
-    if (!loggedIn(req)) return res.redirect('/login.html');
-    return res.sendFile(path.join(directory, 'pages', 'home.html'));
-  });
+  app.get('/', (req, res) => res.redirect('/home.html'));
+  app.get('/home.html', requireAuth, (req, res) => res.sendFile(path.join(directory, 'pages', 'home.html')));
+  app.get(['/about', '/about.html'], requireAuth, (req, res) => res.sendFile(path.join(directory, 'pages', 'about.html')));
+  app.get(['/users', '/users.html'], requireAuth, (req, res) => res.sendFile(path.join(directory, 'pages', 'users.html')));
   app.use(express.static(path.join(directory, 'public')));
 
   app.use((error, req, res, next) => {

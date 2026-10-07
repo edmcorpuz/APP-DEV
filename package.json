@@ -11,10 +11,11 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "Express POST-only signup and login activity with simple HTML pages",
+  "description": "Simple JWT authentication with protected About Me and Users pages",
   "private": true,
   "dependencies": {
+    "cookie-parser": "^1.4.7",
     "express": "^5.2.1",
-    "express-session": "^1.19.0"
+    "jsonwebtoken": "^9.0.3"
   }
 }

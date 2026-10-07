@@ -8,7 +8,7 @@ let store;
 
 beforeEach(async () => {
   store = [];
-  const app = createApp({ userStore: store, sessionSecret: 'test-only-session-secret' });
+  const app = createApp({ userStore: store, jwtSecret: 'test-only-jwt-secret' });
   server = await new Promise((resolve) => {
     const listener = app.listen(0, '127.0.0.1', () => resolve(listener));
   });
@@ -27,7 +27,7 @@ async function post(endpoint, body, cookie) {
     ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
   });
 }
-const sessionCookie = (response) => response.headers.get('set-cookie').split(';')[0];
+const tokenCookie = (response) => response.headers.get('set-cookie').split(';')[0];
 
 async function expectError(response, status, text) {
   expect(response.status).toBe(status);
@@ -38,12 +38,12 @@ async function expectError(response, status, text) {
 }
 
 describe('signup', () => {
-  test('returns 201, stores a unique ID and hashed password, starts a session', async () => {
+  test('returns 201, stores a unique ID and hashed password, issues a JWT', async () => {
     const response = await post('signup', account);
     expect(response.status).toBe(201);
     const result = await response.json();
     expect(result.status).toBe(201);
-    expect(result.user).toEqual({ id: store[0].id, email: account.email, username: account.username });
+    expect(result.user).toEqual({ id: store[0].id, email: account.email, username: account.username, bio: '' });
     expect(result.user.passwordHash).toBeUndefined();
     expect(store).toHaveLength(1);
     expect(store[0].id).toMatch(/^[a-f0-9-]{36}$/);
@@ -51,7 +51,7 @@ describe('signup', () => {
     expect(store[0].password).toBeUndefined();
     expect(response.headers.get('set-cookie')).toContain('HttpOnly');
     expect(response.headers.get('set-cookie')).toContain('SameSite=Lax');
-    const home = await fetch(`${base}/home.html`, { headers: { Cookie: sessionCookie(response) } });
+    const home = await fetch(`${base}/home.html`, { headers: { Cookie: tokenCookie(response) } });
     expect(home.status).toBe(200);
     expect(await home.text()).toContain('Welcome home.');
   });
@@ -100,15 +100,15 @@ describe('signup', () => {
 });
 
 describe('login', () => {
-  test('returns 200 for credentials in the body and issues a new session', async () => {
+  test('returns 200 for credentials in the body and issues a new JWT', async () => {
     const signup = await post('signup', account);
     const response = await post('login', { username: ' STUDENT ', password: account.password });
     expect(response.status).toBe(200);
     const result = await response.json();
     expect(result.status).toBe(200);
     expect(result.user.username).toBe(account.username);
-    expect(sessionCookie(response)).not.toBe(sessionCookie(signup));
-    const home = await fetch(`${base}/home.html`, { headers: { Cookie: sessionCookie(response) } });
+    expect(tokenCookie(response)).not.toBe(tokenCookie(signup));
+    const home = await fetch(`${base}/home.html`, { headers: { Cookie: tokenCookie(response) } });
     expect(home.status).toBe(200);
   });
 
@@ -144,7 +144,7 @@ describe('login', () => {
 
 describe('HTTP and pages', () => {
   for (const method of ['GET', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS']) {
-    test(`API rejects ${method} with 405 and Allow: POST`, async () => {
+    test(`login rejects ${method} with 405 and Allow: POST`, async () => {
       const response = await fetch(`${base}/api/login`, { method });
       expect(response.status).toBe(405);
       expect(response.headers.get('allow')).toBe('POST');
@@ -165,7 +165,7 @@ describe('HTTP and pages', () => {
   });
 
   test('signup, login, styles, and scripts are served', async () => {
-    for (const file of ['signup.html', 'login.html', 'styles.css', 'auth.js', 'home.js']) {
+    for (const file of ['signup.html', 'login.html', 'styles.css', 'auth.js', 'home.js', 'profile.js', 'users.js']) {
       expect((await fetch(`${base}/${file}`)).status).toBe(200);
     }
   });
@@ -176,23 +176,22 @@ describe('HTTP and pages', () => {
     expect(response.headers.get('location')).toBe('/login.html');
   });
 
-  test('logout invalidates the session and clears the cookie', async () => {
+  test('logout clears the browser cookie and logged-out requests are redirected', async () => {
     const signup = await post('signup', account);
-    const cookie = sessionCookie(signup);
-    const response = await post('logout', undefined, cookie);
+    const response = await post('logout', undefined, tokenCookie(signup));
     expect(response.status).toBe(200);
     expect(response.headers.get('set-cookie')).toContain('Expires=Thu, 01 Jan 1970');
-    const home = await fetch(`${base}/home.html`, { headers: { Cookie: cookie }, redirect: 'manual' });
+    const home = await fetch(`${base}/home.html`, { redirect: 'manual' });
     expect(home.status).toBe(302);
   });
 
   test('demo users and implementation files are not publicly served', async () => {
-    for (const file of ['database/users.js', 'app.js', '.env', 'pages/home.html']) {
+    for (const file of ['database/users.js', 'app.js', '.env', 'lib/auth.js', 'pages/home.html', 'pages/about.html', 'pages/users.html']) {
       expect((await fetch(`${base}/${file}`)).status).toBe(404);
     }
   });
 
   test('production configuration requires an explicit secret', () => {
-    expect(() => createApp({ production: true })).toThrow('SESSION_SECRET');
+    expect(() => createApp({ production: true })).toThrow('JWT_SECRET');
   });
 });

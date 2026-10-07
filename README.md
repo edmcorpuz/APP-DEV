@@ -1,14 +1,13 @@
-# User Signup & Login — REST API Activity
+# JWT Auth Activity
 
-A basic Express.js backend and three simple HTML pages. All API endpoints use
-**POST**. Browsers use GET only to load the HTML, CSS, and JavaScript files.
+A simple Express application with plain HTML, CSS, and JavaScript. Built on the
+previous signup/login activity, with JWT authentication instead of sessions.
 
-**Submission branch:**
-https://github.com/edmcorpuz/APP-DEV/tree/rest-api-activity
+**Submission link:** https://github.com/edmcorpuz/APP-DEV/tree/jwt-auth-routes
 
-## Run
+## Run locally
 
-Runtime: Bun 1.3.13 (pinned in `.mise.toml`).
+Use Bun 1.3.13 (pinned in `.mise.toml`).
 
 ```sh
 mise install
@@ -16,103 +15,80 @@ bun install
 bun run dev
 ```
 
-Open **http://localhost:3000**. Create an account, log out, then log back in.
-Successful signup and login both redirect to `/home.html`.
+Open **http://localhost:3000** and choose **Create an account**. Enter a username,
+email, password, and optional bio. After signup or login, use the navigation to
+visit **About Me** and **Users**. Create a second account to see both users listed.
 
-For a normal server without file watching, use `bun run start`.
-Optional environment variables are documented in `.env.example`.
+- `bun run start` runs without file watching.
+- `bun run test` runs the automated tests.
+- VS Code includes a Bun launch configuration and tasks.
+- `.env.example` documents optional settings. Bun loads a local `.env` automatically.
 
-## API and status codes
+## Activity requirements
 
-Send JSON with `Content-Type: application/json`.
+- **JWT middleware:** `requireAuth` in `lib/auth.js` verifies the token signature,
+  expiration, and registered user before allowing access.
+- **Expiry:** `jwt.sign` uses `expiresIn: '1h'`.
+- **About Me:** `/about` shows the logged-in user's username, email, and bio.
+- **Users:** `/users` shows all registered users. Passwords and hashes are excluded.
+- **Branch:** `jwt-auth-routes`.
 
-| Endpoint | Request body | Success | Errors |
+## Routes
+
+| Method | Route | Purpose | Login required |
 | --- | --- | --- | --- |
-| `POST /api/signup` | `email`, `username`, `password` | **201 Created** | **400** missing/blank/invalid fields; **409** existing email or username |
-| `POST /api/login` | `username`, `password` | **200 OK** | **400** missing/blank fields; **401** wrong credentials or nonexistent user |
-| `POST /api/logout` | None | **200 OK** | Invalidates the session |
+| POST | `/api/signup` | Create an account and issue a JWT | No |
+| POST | `/api/login` | Verify credentials and issue a JWT | No |
+| POST | `/api/logout` | Clear the JWT cookie | No |
+| GET | `/home.html` | Homepage with navigation | Yes |
+| GET | `/about` | About Me page (`/about.html` also works) | Yes |
+| GET | `/users` | Users page (`/users.html` also works) | Yes |
+| GET | `/api/me` | Current user's public profile | Yes |
+| GET | `/api/users` | All registered users' public profiles | Yes |
 
-API methods other than POST return **405** with `Allow: POST`.
-Malformed JSON returns **400**; oversized JSON returns **413**.
-Credentials are taken exclusively from the request **body**, not URL params or
-query strings. Email and username uniqueness is case-insensitive. Surrounding
-email/username whitespace is removed; nonempty passwords are not trimmed.
+Signup accepts JSON containing `username`, `email`, `password`, and optional `bio`
+(up to 500 characters). Login accepts `username` and `password`. Authentication
+responses include a message and the public user; the JWT is sent in a cookie.
 
-Example signup JSON:
+Protected pages redirect to login if the token is missing, invalid, or expired.
+Protected APIs return **401** instead. Signup returns **201**, invalid input
+**400**, duplicate accounts **409**, and incorrect login credentials **401**.
 
-```json
-{
-  "email": "student@example.com",
-  "username": "student",
-  "password": "demo-password"
-}
-```
+## How authentication works
 
-Example login JSON:
+1. Passwords are hashed with salted scrypt before being stored.
+2. Signup/login signs a JWT containing the user's ID, a unique token ID, and expiry.
+3. The browser stores it in an **HttpOnly, SameSite=Lax** cookie, not local storage.
+4. The middleware verifies it with `jwt.verify` and the allowed `HS256` algorithm.
+5. Each protected route receives the authenticated user through `req.user`.
 
-```json
-{
-  "username": "student",
-  "password": "demo-password"
-}
-```
+Protected HTML is kept in `pages/`, outside the public static directory. User data
+is displayed with `textContent` to prevent HTML injection. APIs and protected
+pages use `Cache-Control: no-store`.
 
-Response bodies include a numeric status and readable message. Successful
-responses additionally contain the public user (`id`, `email`, `username`).
-Password hashes are never returned. For example, a duplicate signup returns:
-
-```json
-{
-  "status": 409,
-  "message": "An account with this email or username already exists."
-}
-```
-
-The forms display the actual HTTP status code and error message, disable their
-submit button while waiting, and report network errors without clearing fields.
-Empty-form submission reaches the API so the required **400** response can be
-seen directly on the page.
-
-## Demo database and authentication
-
-`database/users.js` exports the separate **users array**, as required. Each
-entry is a JSON-compatible object keyed by a unique `id`:
-
-```js
-{ id, email, username, passwordHash }
-```
-
-Passwords use salted scrypt hashes, not plaintext. Signup and login establish
-an HTTP-only, SameSite session cookie. The backend protects the homepage;
-logout destroys the session. Nothing sensitive is saved in browser storage.
-
-**Classroom demo only:** users and sessions exist only in server memory and
-reset on restart. There is no database persistence, email verification, password
-reset, rate limiting, or production-grade session storage. Express-session's
-MemoryStore is for development only. Production requires a durable database,
-session store, HTTPS, a strong `SESSION_SECRET`, and additional security controls.
-
-## Structure
+## Project files
 
 ```text
-app.js                 Express app, POST endpoints, status codes, sessions
-server.js              Server entry point
-database/users.js      Separate JSON-compatible demo users array
+app.js                 Express routes and input validation
+server.js              Starts the server
+lib/auth.js            JWT creation and authentication middleware
 lib/passwords.js       Password hashing and verification
-public/                Signup/login HTML, CSS, browser JavaScript
-pages/home.html        Protected simple homepage (not publicly static)
-test/auth.test.js      Real HTTP integration tests
-.vscode/               Run/debug configuration and recommended extension
+database/users.js      In-memory user array
+pages/                 Protected Home, About Me, and Users pages
+public/                Login/signup pages, CSS, and browser scripts
+test/                  Signup/login and JWT route tests
 ```
 
-## Test
+## Classroom-demo limitations
 
-```sh
-bun run test
-```
+- Accounts are stored in memory and disappear when the server restarts. No database
+  setup is needed. Do not enter real passwords or private profile information.
+- Without `JWT_SECRET`, development generates a random signing secret on startup.
+  Restarting therefore invalidates existing tokens as well as clearing users.
+- Logout deletes the browser cookie. A previously copied JWT remains valid until
+  its one-hour expiry; this small demo does not implement a token revocation list.
+- Production mode requires HTTPS and a random `JWT_SECRET` of at least 32 characters;
+  it sets the cookie's `Secure` flag. A deployed service would also need persistent
+  storage, login rate limiting, and token revocation.
 
-Tests use a fresh in-memory users array and a real Express server per test.
-They cover signup, login, the required status codes, missing/blank/non-string
-fields, duplicate usernames/emails, concurrent duplicate signup, unique IDs,
-password hashing, body-only credentials, sessions, logout, static pages,
-malformed JSON, and POST-only API enforcement.
+Submit the **branch-specific link above** in Daigler, as requested in the activity.

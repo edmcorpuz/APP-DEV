@@ -14,14 +14,14 @@
   </header>
   <main class="auth-layout">
     <section class="intro" aria-labelledby="intro-title">
-      <p class="eyebrow">REST API ACTIVITY</p>
+      <p class="eyebrow">JWT AUTH ACTIVITY</p>
       <h1 id="intro-title">A simple start. <br>Your own account.</h1>
-      <p>Create an account to visit your homepage. Already signed up? Your username and password are all you need to log in.</p>
+      <p>Create an account to view your profile and the registered users. Already signed up? Log in to continue.</p>
       <div class="api-note"><span class="method">POST</span><code>/api/signup</code><span>201 · Created</span></div>
     </section>
     <section class="auth-card" aria-labelledby="form-title">
       <h2 id="form-title">Create your account</h2>
-      <p class="subtitle">Just three fields to get started.</p>
+      <p class="subtitle">Add your details and a short introduction.</p>
       <form data-auth="signup" method="post" action="/api/signup" novalidate>
         <label for="email">Email address</label>
         <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" maxlength="254" required>
@@ -29,6 +29,9 @@
         <input id="username" name="username" type="text" autocomplete="username" placeholder="Choose a username" maxlength="50" required>
         <label for="password">Password</label>
         <input id="password" name="password" type="password" autocomplete="new-password" placeholder="Choose a password" maxlength="256" required>
+        <label for="bio">Bio (optional)</label>
+        <textarea id="bio" name="bio" rows="3" maxlength="500" placeholder="A little about yourself" aria-describedby="bio-help"></textarea>
+        <p id="bio-help" class="field-help">Up to 500 characters.</p>
         <p class="form-status" id="form-status" role="alert" aria-live="polite" hidden></p>
         <button class="primary-button" type="submit">Create account</button>
       </form>

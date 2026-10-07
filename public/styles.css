@@ -21,9 +21,9 @@ h2 { font-size: 23px; letter-spacing: -0.6px; line-height: 1.3; margin: 0 0 8px;
 .subtitle { color: #59667b; margin: 0 0 28px; font-size: 14px; }
 form { display: flex; flex-direction: column; }
 label { margin-bottom: 8px; font-size: 14px; font-weight: 650; }
-input { width: 100%; min-height: 48px; font: inherit; font-size: 15px; padding: 12px 14px; border: 1px solid #cbd3e1; border-radius: 8px; background: #fff; color: #18243a; margin-bottom: 20px; }
-input::placeholder { color: #69758a; }
-input:focus-visible, a:focus-visible, button:focus-visible { outline: 3px solid #7a8bed; outline-offset: 3px; }
+input, textarea { width: 100%; min-height: 48px; font: inherit; font-size: 15px; padding: 12px 14px; border: 1px solid #cbd3e1; border-radius: 8px; background: #fff; color: #18243a; margin-bottom: 20px; }
+input::placeholder, textarea::placeholder { color: #69758a; }
+input:focus-visible, textarea:focus-visible, a:focus-visible, button:focus-visible { outline: 3px solid #7a8bed; outline-offset: 3px; }
 .primary-button { display: block; width: 100%; min-height: 48px; border: 0; border-radius: 8px; background: #354ec4; color: #fff; font: inherit; font-size: 15px; font-weight: 650; padding: 12px 18px; cursor: pointer; }
 .primary-button:hover:not(:disabled) { background: #293fa6; }
 .primary-button:disabled { opacity: 0.65; cursor: wait; }
@@ -37,5 +37,17 @@ footer { text-align: center; padding: 24px; color: #59667b; font-size: 12px; }
 .home-card h1 { font-size: 36px; letter-spacing: -1px; line-height: 1.2; margin: 0 0 16px; }
 .success-mark { display: grid; place-items: center; width: 64px; height: 64px; margin: 0 auto 24px; border-radius: 50%; background: #e9f6ef; color: #206842; font-size: 30px; }
 .demo-note { padding: 16px; margin: 0 0 24px; background: #f3f6fb; border-radius: 8px; font-size: 13px; color: #59667b; }
-.session-label { font-size: 12px; color: #206842; }
+textarea { resize: vertical; margin-bottom: 6px; }
+.field-help { margin: 0 0 20px; color: #59667b; font-size: 12px; }
+.content-layout { width: min(100% - 32px, 680px); margin: 0 auto; padding: 48px 0; flex: 1; }
+.content-layout h1 { margin: 0 0 8px; font-size: 32px; line-height: 1.2; }
+.page-links { display: flex; justify-content: center; gap: 24px; margin: 0 0 24px; }
+.profile-details { margin: 0 0 28px; }
+.profile-details dt { font-size: 13px; font-weight: 700; color: #59667b; }
+.profile-details dd { margin: 4px 0 20px; overflow-wrap: anywhere; white-space: pre-wrap; }
+.user-list { list-style: none; padding: 0; margin: 0 0 28px; }
+.user-list li { padding: 20px 0; border-top: 1px solid #e4e9f2; overflow-wrap: anywhere; }
+.user-list h2 { font-size: 18px; }
+.user-list p { margin: 6px 0 0; color: #59667b; white-space: pre-wrap; }
+@media (max-width: 480px) { .site-header { flex-wrap: wrap; gap: 12px; } nav { flex-wrap: wrap; gap: 18px; } }
 @media (max-width: 760px) { .auth-layout { grid-template-columns: 1fr; width: min(100% - 32px, 460px); padding: 32px 0; gap: 28px; } .intro h1 { font-size: 32px; } .intro h1 br { display: none; } .intro > p:not(.eyebrow), .api-note { display: none; } .intro h1 { margin-bottom: 0; } .auth-card { padding: 24px; } .site-header { padding: 20px; } }

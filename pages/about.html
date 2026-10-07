@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>About Me | APP-DEV</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/home.js" defer></script>
+  <script src="/profile.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/">APP<span>DEV</span></a>
+    <nav aria-label="Main navigation"><a href="/home.html">Home</a><a href="/about" aria-current="page">About Me</a><a href="/users">Users</a></nav>
+  </header>
+  <main class="content-layout">
+    <section class="auth-card" aria-labelledby="page-title">
+      <p class="eyebrow">YOUR PROFILE</p>
+      <h1 id="page-title">About Me</h1>
+      <p class="subtitle">The details you shared when you signed up.</p>
+      <p id="loading" role="status">Loading your profile…</p>
+      <dl id="profile" class="profile-details" hidden>
+        <dt>Username</dt><dd id="username"></dd>
+        <dt>Email</dt><dd id="email"></dd>
+        <dt>Bio</dt><dd id="bio"></dd>
+      </dl>
+      <p class="form-status" id="form-status" role="alert" aria-live="polite" hidden></p>
+      <button id="logout" class="primary-button" type="button">Log out</button>
+    </section>
+  </main>
+  <footer>JWT Auth Activity · Tokens expire after one hour</footer>
+</body>
+</html>

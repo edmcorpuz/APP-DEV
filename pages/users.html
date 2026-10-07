@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Users | APP-DEV</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/home.js" defer></script>
+  <script src="/users.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/">APP<span>DEV</span></a>
+    <nav aria-label="Main navigation"><a href="/home.html">Home</a><a href="/about">About Me</a><a href="/users" aria-current="page">Users</a></nav>
+  </header>
+  <main class="content-layout">
+    <section class="auth-card" aria-labelledby="page-title">
+      <p class="eyebrow">REGISTERED ACCOUNTS</p>
+      <h1 id="page-title">Users</h1>
+      <p class="subtitle">Everyone registered while this demo server is running.</p>
+      <p id="loading" role="status">Loading users…</p>
+      <ul id="user-list" class="user-list" aria-label="Registered users" hidden></ul>
+      <p class="form-status" id="form-status" role="alert" aria-live="polite" hidden></p>
+      <button id="logout" class="primary-button" type="button">Log out</button>
+    </section>
+  </main>
+  <footer>JWT Auth Activity · Only logged-in users can view this page</footer>
+</body>
+</html>
