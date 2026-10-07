@@ -85,6 +85,13 @@ describe('signup', () => {
     expect(store).toHaveLength(1);
   });
 
+  test('does not allow one account username to match another account email', async () => {
+    await post('signup', account);
+    await expectError(await post('signup', { ...account, username: 'STUDENT@example.com', email: 'other@example.com' }), 409, 'already exists');
+    await post('signup', { ...account, username: 'third@example.com', email: 'second@example.com' });
+    await expectError(await post('signup', { ...account, username: 'third', email: 'THIRD@example.com' }), 409, 'already exists');
+  });
+
   test('simultaneous duplicate requests create only one user', async () => {
     const responses = await Promise.all([post('signup', account), post('signup', account)]);
     expect(responses.map((r) => r.status).sort()).toEqual([201, 409]);
@@ -130,9 +137,17 @@ describe('login', () => {
   });
 
   test('returns 401 for an unknown user or wrong password', async () => {
-    await expectError(await post('login', { username: 'missing', password: 'demo-password' }), 401, 'Invalid username or password');
+    await expectError(await post('login', { username: 'missing', password: 'demo-password' }), 401, 'Invalid username, email, or password');
     await post('signup', account);
-    await expectError(await post('login', { username: account.username, password: 'wrong' }), 401, 'Invalid username or password');
+    await expectError(await post('login', { username: account.username, password: 'wrong' }), 401, 'Invalid username, email, or password');
+    await expectError(await post('login', { username: account.email, password: 'wrong' }), 401, 'Invalid username, email, or password');
+  });
+
+  test('accepts email at login, ignoring case and surrounding whitespace', async () => {
+    await post('signup', account);
+    const response = await post('login', { username: ' STUDENT@EXAMPLE.COM ', password: account.password });
+    expect(response.status).toBe(200);
+    expect((await response.json()).user.username).toBe(account.username);
   });
 
   test('password whitespace is preserved, not silently trimmed', async () => {
@@ -186,7 +201,7 @@ describe('HTTP and pages', () => {
   });
 
   test('demo users and implementation files are not publicly served', async () => {
-    for (const file of ['database/users.js', 'app.js', '.env', 'lib/auth.js', 'pages/home.html', 'pages/about.html', 'pages/users.html']) {
+    for (const file of ['database/users.js', 'database/users.json', 'database/users.json.tmp', 'app.js', '.env', 'lib/auth.js', 'pages/home.html', 'pages/about.html', 'pages/users.html']) {
       expect((await fetch(`${base}/${file}`)).status).toBe(404);
     }
   });

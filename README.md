@@ -47,8 +47,10 @@ visit **About Me** and **Users**. Create a second account to see both users list
 | GET | `/api/users` | All registered users' public profiles | Yes |
 
 Signup accepts JSON containing `username`, `email`, `password`, and optional `bio`
-(up to 500 characters). Login accepts `username` and `password`. Authentication
-responses include a message and the public user; the JWT is sent in a cookie.
+(up to 500 characters). Login accepts `username` (either your username or email)
+and `password`. Username/email matching ignores case and surrounding whitespace;
+passwords are matched exactly. Authentication responses include a message and the
+public user; the JWT is sent in a cookie.
 
 Protected pages redirect to login if the token is missing, invalid, or expired.
 Protected APIs return **401** instead. Signup returns **201**, invalid input
@@ -73,7 +75,7 @@ app.js                 Express routes and input validation
 server.js              Starts the server
 lib/auth.js            JWT creation and authentication middleware
 lib/passwords.js       Password hashing and verification
-database/users.js      In-memory user array
+database/users.js      Loads and saves the local user database
 pages/                 Protected Home, About Me, and Users pages
 public/                Login/signup pages, CSS, and browser scripts
 test/                  Signup/login and JWT route tests
@@ -81,14 +83,19 @@ test/                  Signup/login and JWT route tests
 
 ## Classroom-demo limitations
 
-- Accounts are stored in memory and disappear when the server restarts. No database
-  setup is needed. Do not enter real passwords or private profile information.
+- Accounts are saved in `database/users.json`, including salted password hashes
+  (never plain passwords). The file is created on signup, ignored by Git, and not
+  publicly served. No database setup is needed. Run only one server against this
+  file. Do not enter real passwords or private profile information.
+- Accounts from the earlier in-memory version that were lost on restart must be
+  created again once. New accounts survive restarts.
 - Without `JWT_SECRET`, development generates a random signing secret on startup.
-  Restarting therefore invalidates existing tokens as well as clearing users.
+  Restarting invalidates existing tokens, but you can log in again with your saved
+  username or email and password.
 - Logout deletes the browser cookie. A previously copied JWT remains valid until
   its one-hour expiry; this small demo does not implement a token revocation list.
 - Production mode requires HTTPS and a random `JWT_SECRET` of at least 32 characters;
-  it sets the cookie's `Secure` flag. A deployed service would also need persistent
-  storage, login rate limiting, and token revocation.
+  it sets the cookie's `Secure` flag. A deployed service would also need a proper
+  database, login rate limiting, and token revocation.
 
 Submit the **branch-specific link above** in Daigler, as requested in the activity.

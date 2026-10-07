@@ -4,7 +4,6 @@ import { fileURLToPath } from 'node:url';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 
-import { users } from './database/users.js';
 import { hashPassword, verifyPassword } from './lib/passwords.js';
 import { createAuth } from './lib/auth.js';
 
@@ -19,7 +18,7 @@ const hasFields = (body, fields) => fields.every((field) =>
   typeof body?.[field] === 'string' && body[field].trim().length > 0,
 );
 
-export function createApp({ userStore = users, jwtSecret, production = false } = {}) {
+export function createApp({ userStore = [], addUser = (user) => userStore.push(user), jwtSecret, production = false } = {}) {
   if (production && (!jwtSecret || jwtSecret.length < 32)) {
     throw new Error('JWT_SECRET must be at least 32 characters in production.');
   }
@@ -55,14 +54,16 @@ export function createApp({ userStore = users, jwtSecret, production = false } =
       return reply(res, 400, 'Username must be at most 50 characters and password at most 256 characters.');
     }
     const exists = () => userStore.some((user) =>
-      user.email.toLowerCase() === email || user.username.toLowerCase() === username.toLowerCase(),
+      [user.email.toLowerCase(), user.username.toLowerCase()].some((identifier) =>
+        identifier === email || identifier === username.toLowerCase(),
+      ),
     );
     if (exists()) return reply(res, 409, 'An account with this email or username already exists.');
     const passwordHash = await hashPassword(password);
     // Check again after hashing to prevent simultaneous duplicate signups.
     if (exists()) return reply(res, 409, 'An account with this email or username already exists.');
     const user = { id: randomUUID(), email, username, bio: bio.trim(), passwordHash };
-    userStore.push(user);
+    addUser(user);
     setToken(res, user);
     return reply(res, 201, 'Account created successfully.', user);
   });
@@ -70,14 +71,17 @@ export function createApp({ userStore = users, jwtSecret, production = false } =
   app.post('/api/login', async (req, res) => {
     // Credentials come only from req.body, never params or the query string.
     if (!hasFields(req.body, ['username', 'password'])) {
-      return reply(res, 400, 'Username and password are required.');
+      return reply(res, 400, 'Username or email and password are required.');
     }
-    if (req.body.username.trim().length > 50 || req.body.password.length > 256) {
-      return reply(res, 400, 'Username or password is too long.');
+    const identifier = req.body.username.trim().toLowerCase();
+    if (identifier.length > 254 || req.body.password.length > 256) {
+      return reply(res, 400, 'Username, email, or password is too long.');
     }
-    const user = userStore.find((item) => item.username.toLowerCase() === req.body.username.trim().toLowerCase());
+    const user = userStore.find((item) =>
+      item.username.toLowerCase() === identifier || item.email.toLowerCase() === identifier,
+    );
     if (!user || !await verifyPassword(req.body.password, user.passwordHash)) {
-      return reply(res, 401, 'Invalid username or password.');
+      return reply(res, 401, 'Invalid username, email, or password.');
     }
     setToken(res, user);
     return reply(res, 200, 'Logged in successfully.', user);

@@ -16,15 +16,15 @@
     <section class="intro" aria-labelledby="intro-title">
       <p class="eyebrow">JWT AUTH ACTIVITY</p>
       <h1 id="intro-title">Welcome back. <br>Pick up here.</h1>
-      <p>Log in with the username and password you used to sign up. Your account stays available while the demo server is running.</p>
+      <p>Log in with your username or email and the password you used to sign up. Your account is saved locally, even after a server restart.</p>
       <div class="api-note"><span class="method">POST</span><code>/api/login</code><span>200 · OK</span></div>
     </section>
     <section class="auth-card" aria-labelledby="form-title">
       <h2 id="form-title">Log in to your account</h2>
       <p class="subtitle">Enter your details to continue.</p>
       <form data-auth="login" method="post" action="/api/login" novalidate>
-        <label for="username">Username</label>
-        <input id="username" name="username" type="text" autocomplete="username" placeholder="Your username" maxlength="50" required>
+        <label for="username">Username or email</label>
+        <input id="username" name="username" type="text" autocomplete="username" placeholder="Your username or email" maxlength="254" required>
         <label for="password">Password</label>
         <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Your password" maxlength="256" required>
         <p class="form-status" id="form-status" role="alert" aria-live="polite" hidden></p>
