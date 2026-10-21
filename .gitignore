@@ -4,3 +4,8 @@ node_modules/
 .test-storage*/
 artifacts/
 *.log
+
+# Keep personal presentation notes local, not in the submission.
+**/PRESENTATION-GUIDE.*
+**/CHEAT-SHEET.*
+scripts/build-guide.js
