@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#234a3b">
+  <title>Sugilanon — Stories worth sharing</title>
+  <link rel="icon" href="/mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" type="module"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="brand" href="#/"><img src="/mark.svg" alt="" width="38" height="38"><span>Sugilanon<span class="brand-sub">A LITTLE SPACE FOR BIG IDEAS</span></span></a>
+    <nav id="navigation" aria-label="Main navigation"></nav>
+  </header>
+  <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+  <main id="main" tabindex="-1"><p class="loading">Getting the stories ready…</p></main>
+  <footer><a class="footer-brand" href="#/">Sugilanon.</a><p>Every voice has a story. What's yours?</p><a href="#/about">About this project ↗</a></footer>
+  <dialog id="delete-dialog" aria-labelledby="delete-title">
+    <span class="eyebrow">BEFORE YOU GO</span><h2 id="delete-title">Delete this story?</h2>
+    <p>This removes it for everyone. There’s no undo, so take a moment to be sure.</p>
+    <div class="actions"><button id="cancel-delete" class="button secondary">Keep the story</button><button id="confirm-delete" class="button danger">Yes, delete story</button></div>
+    <p id="delete-error" class="error" role="alert"></p>
+  </dialog>
+</body>
+</html>

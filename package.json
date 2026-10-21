@@ -1,0 +1,27 @@
+{
+  "name": "sugilanon-blog-platform",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "setup": "bun scripts/setup.js",
+    "start": "bun scripts/start.js",
+    "start:auth": "bun auth-server/server.js",
+    "start:blog": "bun blog-api/server.js",
+    "test": "bun test tests/api.test.js",
+    "test:ui": "bun scripts/test-ui.js",
+    "test:collection": "bun scripts/test-collection.js",
+    "guide": "bun scripts/build-guide.js",
+    "seed": "bun scripts/seed-demo.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "dotenv": "^17.2.3",
+    "cors": "^2.8.5",
+    "node-localstorage": "^3.0.5"
+  },
+  "devDependencies": {
+    "pdfkit": "^0.17.2"
+  }
+}

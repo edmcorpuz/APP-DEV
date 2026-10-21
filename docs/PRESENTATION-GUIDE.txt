@@ -1,0 +1,520 @@
+# SUGILANON
+## Presentation cheat sheet + speaking guide
+App Dev Midterm | Full frontend + two Express servers
+
+QUICK MEMORY CARD
+Project: Sugilanon means "story" in Bisaya.
+Frontend + Blog API: http://localhost:5000
+Auth Server: http://localhost:4000
+Start: cd "C:\Users\BloodMank\Downloads\appdev midterm\blog-platform"
+Then: bun run start
+Optional demo accounts/stories: bun run seed (in another terminal)
+
+Roles:
+- Guest: read all posts and view a single post, without a token.
+- Reader: same public reading, plus sign-in and "My stories" (normally empty).
+- Author: create a story and edit their own stories; CANNOT delete, even their own.
+- Admin: create, edit any story, delete any story; "My stories" still means only theirs.
+
+Tokens:
+- Access JWT: id, username, role; 15 minutes; used in Authorization: Bearer.
+- Refresh JWT: id, type: "refresh", unique jti; 7 days; used only with Auth.
+- Both use the SAME JWT_SECRET from the SAME root .env.
+- Logout revokes refresh. Existing access tokens can work until they expire.
+
+THE ONE-SENTENCE ARCHITECTURE ANSWER
+"The Auth Server signs JWTs; the Blog API verifies them locally using the same secret. The Blog API never asks Auth whether a token is valid."
+
+Bisaya cue: "Ang Auth ang mohatag sa token; ang Blog mismo ang mo-verify."
+Tagalog cue: "Magkahiwalay ang trabaho nila, pero pareho ang secret."
+
+BEST CODE FILES TO HAVE OPEN
+1. shared/config.js
+2. auth-server/src/controllers/authController.js
+3. blog-api/src/routes/postRoutes.js
+4. blog-api/src/middleware/authenticate.js
+5. blog-api/src/middleware/authorize.js
+6. blog-api/src/controllers/postController.js
+7. shared/storage.js
+8. frontend/app.js
+
+DON'T OVERCLAIM
+Full-stack bonus is the professor's decision. Say what you can demonstrate.
+Bun is the configured runner; it is Node-compatible but is not Node.js itself.
+Admin self-registration and localStorage tokens are classroom concessions.
+No GitHub push has been done without your repository URL.
+Study the guide and explain in your own words. Don't memorize claims you cannot show.
+
+=== PAGE ===
+# BEFORE PRESENTATION DAY
+## Setup, accounts, and a calm rehearsal
+
+FIRST RUN
+In the blog-platform folder:
+1. bun install
+2. bun run setup
+3. bun run start
+4. Open http://localhost:5000
+5. In a second terminal, run bun run seed
+6. Refresh the browser. Four sample stories should appear.
+
+The parent folder also contains START-APP.cmd. Double-click it to set up dependencies if missing, create .env if missing, and run both servers. Keep the terminal open.
+
+Do not open frontend/index.html directly. The frontend must be served by the Blog server so API calls use the correct origin.
+
+OPTIONAL LOCAL DEMO ACCOUNTS
+clara_reader  | reader | StoryTime123!
+mika_author   | author | StoryTime123!
+eli_author    | author | StoryTime123!
+sam_admin     | admin  | StoryTime123!
+
+These accounts exist only after seed succeeds. Never use this demo password for personal accounts. Seeding logs in and logs out the demo accounts, so it can invalidate their earlier refresh sessions. Seed BEFORE the live presentation.
+
+PRESENTATION PRE-FLIGHT
+[ ] Both /health endpoints respond.
+[ ] You can sign in as author, reader, and admin.
+[ ] You know which story will be your temporary demo story.
+[ ] The editor can publish and save changes.
+[ ] PDF, source code, browser, and terminal are open.
+[ ] Postman collection is imported if you want to show denied requests.
+[ ] You are on the midterm-exam branch.
+[ ] You have confirmed the professor's exact Node runtime expectation.
+[ ] Your GitHub repository URL and submission bin are ready.
+
+RUNTIME NOTE
+This machine's tooling policy uses Bun 1.3.13. The backend uses Node.js APIs, Express, jsonwebtoken and dotenv and avoids Bun-only server APIs. However, the instruction sheet explicitly names Node.js. Do not call Bun "Node.js." If the professor requires an actual Node process, resolve that runtime requirement before presenting. The two server entry points are written to be Node-compatible.
+
+REHEARSE WITH TESTS
+bun run test       -> isolated API tests, not your demo data
+bun run test:ui    -> browser tests, temporary accounts and data
+Read docs/TEST-RESULTS.md for the checks actually completed.
+
+Say to yourself: "Dili kinahanglan paspas. Klaro dapat ang explanation."
+You do not need to rush. Clear explanations matter more than speed.
+
+=== PAGE ===
+# LIVE DEMO: MINUTES 0-4
+## Opening, public reading, registration, and author work
+
+0:00-0:40 | OPENING
+"Good day, Sir/Ma'am. My project is Sugilanon, a small blog platform. Sugilanon means story in Bisaya. I chose the full-stack route, so I will show the complete UI together with the two required Express servers."
+
+"The Auth Server runs on port 4000. The Blog API runs on port 5000 and also serves the frontend. These are two separate backend processes, not just a frontend server and one backend."
+
+Action: show the two startup lines in the terminal.
+
+0:40-1:20 | PUBLIC READING
+Action: open the home page while signed out. Search for a story and open it.
+
+"Anyone can list stories and read a specific story without logging in. These two GET routes are intentionally public."
+
+Tagalog expansion: "Hindi lahat ng endpoints may authentication. Yung pagbabasa, public. Yung pagsusulat, kailangan ng valid token."
+
+1:20-2:10 | REGISTER
+Action: create a fresh author account, for example demo_writer_01. Use a fresh suffix if it already exists. Sign in with it.
+
+"Registration validates the username, password, and role. The password is hashed with Node's crypto API before saving. Registration does not automatically log in; login is a separate endpoint."
+
+"The role choices are open because this exam requires them. In production, I would not let anyone choose admin."
+
+2:10-3:20 | AUTHOR CREATE
+Action: choose Write a story.
+Title: One thing I learned this midterm
+Content: I learned that authentication checks identity, while authorization checks permission. Dili pareho ang duha.
+Publish.
+
+"The browser sends title and content. The server gets authorId from the verified JWT. I do not trust an authorId supplied by the form."
+
+Bisaya expansion: "Dili pwede magpakaaron-ingnon nga lain nga author pinaagi lang sa pag-usab sa request body."
+
+3:20-4:00 | AUTHOR EDIT + MY STORIES
+Action: edit the title. Save. Open My stories.
+
+"An author can edit their own post. My stories filters by the logged-in user's ID. Notice that the author has no delete button: the specification reserves deletion for admins."
+
+Keep this demo story for the admin step. Do not delete your sample stories.
+
+=== PAGE ===
+# LIVE DEMO: MINUTES 4-8
+## Reader restrictions, admin controls, refresh, and closing
+
+4:00-4:50 | READER
+Action: sign out. Sign in as clara_reader. Open the demo story, then My stories.
+
+"A reader can read posts, but cannot publish or edit. Their personal list is usually empty because they cannot create posts. Hiding buttons improves usability, but the real protection is on the server."
+
+Optional Postman proof: send POST /api/posts with readerAccessToken.
+Expected: 403 with an error object.
+Tagalog: "Kahit gumawa ng sariling request, haharangin pa rin ng backend."
+
+4:50-5:50 | ADMIN
+Action: sign out. Sign in as sam_admin. Open the temporary demo story.
+Edit it. Show Delete story. Cancel the first confirmation, then delete it.
+
+"The admin can edit or delete any post, including another author's post. Editing does not transfer ownership. The confirmation dialog helps avoid accidental deletion."
+
+Action: publish one short admin story if time allows. Show it under My stories.
+
+5:50-6:30 | REFRESH + LOGOUT
+Action: click your username to open Account. Click Renew my session.
+
+"This calls POST /refresh. Auth checks the signature, the refresh type, and whether the exact token is still saved. A successful refresh returns a new access token."
+
+"Signing out clears the saved refresh token and records revoked_at. It does not instantly revoke an old access token, because Blog independently validates JWTs."
+
+6:30-7:20 | SHOW SERVER INDEPENDENCE
+Action: use About to show both health checks. Explain the architecture.
+Optional advanced demo: run servers separately, stop ONLY Auth, then call a protected Blog endpoint using a still-valid access token. Restart Auth afterward.
+
+"The Blog API still works with a valid access token when Auth is offline. New login and refresh will not work until Auth comes back."
+
+Do not stop the combined launcher for this demonstration: it intentionally shuts down both children. Use separate terminals with bun run start:auth and bun run start:blog if demonstrating this live.
+
+7:20-8:00 | CLOSING
+"That completes public reading, registration, login, refresh, logout, personal posts, author create/edit, and admin create/edit/delete. The UI calls the real endpoints. I also included automated permission, persistence, and browser tests."
+
+"Thank you. I can now explain the middleware, token lifecycle, or data persistence in more detail."
+
+=== PAGE ===
+# CODE WALKTHROUGH: AUTH
+## What to point at and what it means
+
+FILE: shared/config.js
+Point at dotenv.config({ path: ... }).
+"Both server entry points import this config. The path is based on this module's location, not whichever folder the terminal happens to be in."
+Tagalog: "Iisang root .env lang ang binabasa, kaya consistent ang secret."
+
+FILE: auth-server/src/routes/authRoutes.js
+"Routes map a URL and HTTP method to a controller function. validateBody checks that the incoming JSON is an object."
+Definition: a route is an address plus an action; a controller contains the action's logic.
+
+FILE: auth-server/src/controllers/authController.js
+register():
+- Require username, password, and a valid role.
+- Enforce a 3-30 character username and 8-128 character password.
+- Reject a duplicate username with 409.
+- Generate a unique ID and save a salted password hash.
+- Return only safe public fields, never hashed_password or refresh_token.
+
+hashPassword():
+"randomBytes creates a random salt. scryptSync derives a 64-byte hash. The saved value is salt:hash."
+Tagalog: "Kahit pareho ang password ng dalawang user, iba ang hash dahil iba ang salt."
+matchesPassword():
+"Hash the supplied password with the stored salt, then compare with timingSafeEqual."
+Caveat: synchronous hashing can block the event loop. Async hashing plus rate limits would be better at scale.
+
+login():
+"After password verification, issue a 15-minute access JWT and a 7-day refresh JWT. Save the refresh token and reset revoked_at to null."
+jti is a unique token identifier, so repeated logins produce distinct refresh tokens even within one second.
+Bisaya: "Ang bag-ong login mopuli sa daang refresh token."
+
+refresh():
+"jwt.verify validates signature and expiry. Then the code requires type refresh, finds the user, matches the saved token, and ensures revoked_at is empty."
+Why match the saved token? A token can be correctly signed but already revoked or replaced.
+
+logout():
+"Find the user by saved refresh token, clear refresh_token, set revoked_at, and save."
+Repeated logout is safe and returns success when the token is already absent.
+Do not say it deletes the user or all JWTs. It does neither.
+
+MODEL FIELDS
+id: unique identity; username: login/display name; hashed_password: salted hash;
+role: permissions; refresh_token: current refresh session;
+created_at: registration time; revoked_at: logout/revocation timestamp.
+
+=== PAGE ===
+# CODE WALKTHROUGH: BLOG
+## Identity, permission, ownership, and CRUD
+
+FILE: blog-api/src/routes/postRoutes.js
+"Middleware is applied per route. The two post GET routes remain public."
+Show:
+POST /api/posts -> authenticate -> authorize('author', 'admin') -> createPost
+PUT /api/posts/:id -> authenticate -> updatePost
+DELETE /api/posts/:id -> authenticate -> authorize('admin') -> deletePost
+
+Why no authorize on PUT? The controller uses the exact ownership-or-admin rule.
+"Role and ownership are related but not identical. A valid author cannot edit another author's story."
+
+FILE: middleware/authenticate.js
+1. Read Authorization: Bearer <token>.
+2. Verify HS256 signature and expiry with JWT_SECRET.
+3. Explicitly reject type refresh.
+4. Validate expected identity/role claims.
+5. Put verified claims in req.user, then call next().
+
+Bisaya: "Ang req.user kay gikan sa verified token, dili sa gi-type sa user."
+Important: jwt.decode alone is not verification.
+
+FILE: middleware/authorize.js
+authorize(...roles) returns a middleware function.
+"The ... syntax gathers allowed role names into an array. includes checks membership."
+"authenticate asks kinsa ka; authorize asks unsa imong pwede buhaton."
+
+FILE: controllers/postController.js
+listPosts(): copy and reverse the array to show newer stories first.
+getPost(): find the ID; return 404 if absent.
+myPosts(): filter records where post.authorId equals req.user.id.
+createPost(): validate fields, derive author identity from req.user, push and save.
+updatePost(): find post, check owner/admin, validate partial edits, save.
+deletePost(): remove the matching record, save; admin restriction already ran.
+
+array.find = first matching record
+array.filter = every matching record, as a new array
+array.push = append one item
+array.splice = remove an item at an index
+Object.hasOwn = check whether an update field was actually supplied
+
+WHY ALLOW ONLY TITLE AND CONTENT?
+"It is a small allowlist. A request cannot change authorId, role, ID, or creation date just by adding those fields."
+
+ERROR EXAMPLES
+400: invalid or missing content
+401: absent, expired, malformed, or inappropriate token
+403: identity is known, but the action is not allowed
+404: the requested post does not exist
+All use { "error": "message" } so the frontend can handle them consistently.
+
+=== PAGE ===
+# CODE WALKTHROUGH: STORAGE + UI
+## Explain where the data really goes
+
+FILE: shared/storage.js
+"The createStore function creates a file-backed localStorage namespace, reads the saved JSON once, and turns it into an in-memory array."
+"After each modification, save serializes the current array back to localStorage."
+
+Working array = quick access while running.
+Persisted JSON = data survives a normal restart.
+JSON.parse = text to JavaScript data.
+JSON.stringify = JavaScript data to text.
+Bisaya: "Ang array ang working copy; ang localStorage ang tipiganan."
+
+Auth stores users separately from Blog's posts. Blog does not read the user file.
+There is no database. This is fine for the exercise, but not for concurrent production writers.
+
+BROWSER localStorage IS DIFFERENT
+Browser localStorage stores the session token pair under sugilanon.session.
+It does NOT become the server's users/posts database.
+Deleting browser storage signs this browser out locally but does not delete stories.
+Normal Sign out also calls the backend to revoke the saved refresh token.
+
+FILE: frontend/app.js
+request(): shared fetch wrapper; sends JSON, reads uniform errors, handles connectivity.
+blog(): sends access token on protected requests; refreshes once after a 401 and retries.
+renewSession(): calls Auth /refresh and saves the renewed access token.
+currentUser(): decodes claims for UI labels only; the API still verifies the signature.
+render(): selects the page based on the URL hash.
+stories(): calls the all-post or own-post API and builds the feed.
+editor(): submits POST for a new post or PUT for an edit.
+openDelete(): asks for confirmation, then calls the real DELETE endpoint.
+escapeHTML(): makes user input display as text rather than executable markup.
+
+WHY A SINGLE-PAGE UI?
+"The hash route changes the screen without needing a separate HTML file per page. It is still fully integrated: every important action calls a real API."
+
+LOADING, ERRORS, AND SECURITY
+Submit buttons disable while a request is running.
+The UI shows helpful errors rather than silently failing.
+A stale/expired refresh session prompts a new login.
+Public browsing does not require a token, even if a stored session is expired.
+Content Security Policy limits scripts to this site's own files.
+Escaping and CSP reduce XSS risk; they do not make localStorage tokens risk-free.
+
+Labels are intentionally conversational: Write a story, Keep the story, Renew my session.
+Tagalog cue: "Mas madaling gamitin, pero hindi nito pinapalitan ang backend validation."
+
+=== PAGE ===
+# PRACTICE Q&A: THE LIKELY QUESTIONS
+## Short answer first, then explain if asked
+
+Q: Why two servers?
+A: "Separation of responsibility. Auth manages identity and token issuance. Blog manages content and verifies tokens locally. Both are independent Express processes."
+
+Q: How can Blog verify a token without calling Auth?
+A: "It has the same JWT_SECRET and verifies the HS256 signature and expiration. Hindi kailangan ng network request sa Auth."
+
+Q: Are JWTs encrypted?
+A: "No. Their payload is encoded and readable. The signature detects tampering. That is why passwords and secrets never go in the JWT payload."
+
+Q: Why must Blog reject refresh tokens if the signature is valid?
+A: "A refresh token has a different purpose and a longer lifetime. It may obtain an access token from Auth, but it is not permission to call Blog."
+
+Q: Authentication versus authorization?
+A: "Authentication verifies identity. Authorization checks permissions. Kinsa ka versus unsa imong pwede buhaton."
+
+Q: Why does authorId come from the token?
+A: "If I trusted the request body, someone could impersonate another author. The identity must come from verified claims."
+
+Q: Can authors delete their own posts?
+A: "No. The specification says DELETE is admin-only. Ownership permits editing, not deletion."
+
+Q: Can admin edit another author's post?
+A: "Yes. The ownership check permits the owner OR an admin. The original authorId remains unchanged."
+
+Q: What happens after logout?
+A: "The refresh token is cleared and revoked_at is set. The browser clears its session. An old access token remains valid until expiry, at most 15 minutes."
+
+Q: Why not instantly revoke access tokens too?
+A: "Immediate revocation needs additional shared state, a denylist, token versions, or introspection. This assignment requires Blog to stay independent. Short access expiry limits the remaining lifetime."
+
+Q: What if the secret differs between servers?
+A: "The signature check fails and Blog returns 401. A single shared .env avoids that configuration mismatch."
+
+Q: Can I change my role by editing browser localStorage?
+A: "Changing claims breaks the signature. The API rejects the forged token. UI labels are not trusted by the backend."
+
+Q: What if someone logs in twice?
+A: "The user model stores one refresh_token. The newest login replaces the previous one. Older access tokens still expire normally."
+
+=== PAGE ===
+# PRACTICE Q&A: FOLLOW-UP QUESTIONS
+## Security tradeoffs, persistence, and honest limits
+
+Q: Why is admin available during registration?
+A: "The required register body allows reader, author, or admin. I implemented that contract for the exam. In production I would restrict admin provisioning."
+
+Q: Why hash instead of encrypt passwords?
+A: "Login only needs to verify a password, not recover it. A salted slow hash is appropriate. Encryption is reversible with a key, which is unnecessary here."
+
+Q: What is a salt?
+A: "A random value stored with the hash. It makes the same password produce different hashes and defeats reused precomputed hash tables."
+
+Q: Why localStorage on a server?
+A: "Browsers provide localStorage natively; server processes do not have a browser window. node-localstorage implements the same API using files. This satisfies the persistence pattern while the working records remain arrays."
+
+Q: What happens when the servers restart?
+A: "They reload the arrays from their own storage directories. Saved stories and users remain. Restart tests verify this behavior."
+
+Q: What if Auth is offline?
+A: "Existing access tokens can still call Blog. New login and refresh fail until Auth returns. The UI explains the connection problem."
+
+Q: What if the access token expires while I am writing?
+A: "On submission, the UI receives 401, tries refresh once, then retries the request. If refresh is revoked or expired, it asks for a new login instead of looping."
+
+Q: Why can a refreshed access token look identical?
+A: "JWT time fields have second-level precision. With the same user claims and issuance second, two access tokens can be identical. The important part is valid verification and the intended lifetime."
+
+Q: Does CORS protect the API from Postman?
+A: "No. CORS is a browser cross-origin policy. Postman can still send requests. Actual security comes from token verification and authorization."
+
+Q: Is this production-ready?
+A: "No. It is a complete classroom implementation. I would add HTTPS, protected admin creation, rate limiting, async password hashing, database transactions, stronger session storage, and a revocation strategy."
+
+Q: Are tests proof that no bugs exist?
+A: "No. They are evidence for the scenarios tested. I can show which checks ran, their results, and their limitations."
+
+Q: Why Bun if the sheet says Node.js?
+A: "This workstation is configured to run JavaScript with Bun. The server source uses Node.js APIs and Node-compatible packages, but Bun is a different runtime. I would clarify the runtime requirement rather than pretend they are identical."
+
+Q: Did you push to GitHub?
+A: "The local branch is midterm-exam. Publishing still requires my repository remote and a successful push. I should verify that before submitting."
+
+=== PAGE ===
+# API CHEAT SHEET
+## Endpoint, permissions, body, expected result
+
+AUTH BASE: http://localhost:4000
+POST /register
+Body: { "username": "demo_author", "password": "StoryTime123!", "role": "author" }
+201 success; 400 validation; 409 username taken.
+
+POST /login
+Body: { "username": "demo_author", "password": "StoryTime123!" }
+200 -> { accessToken, refreshToken }
+400 missing fields; 401 wrong credentials.
+
+POST /refresh
+Body: { "refreshToken": "<saved refresh token>" }
+200 -> { accessToken }
+400 missing token; 401 invalid, expired, wrong-type or revoked token.
+
+POST /logout
+Body: { "refreshToken": "<saved refresh token>" }
+200 -> message; 400 missing token.
+Repeat logout is safe. The saved refresh token is cleared.
+
+BLOG BASE: http://localhost:5000
+GET /api/posts -> 200 array; public.
+GET /api/posts/:id -> 200 object or 404; public.
+GET /api/me/posts -> 200 own-post array; any signed-in role.
+
+POST /api/posts -> author or admin only.
+Body: { "title": "My story", "content": "A thought worth sharing." }
+201 object; 400 invalid; 401 invalid/absent token; 403 wrong role.
+
+PUT /api/posts/:id -> owner or admin.
+Body: title, content, or both. Example: { "title": "A better title" }
+200 updated object; 400 invalid; 401 unauthenticated; 403 not owner/admin; 404 missing.
+
+DELETE /api/posts/:id -> admin only.
+200 message; 401 unauthenticated; 403 wrong role; 404 missing.
+
+PROTECTED REQUEST HEADER
+Authorization: Bearer <ACCESS_TOKEN>
+Do not put the refresh token here. Blog rejects it with 401.
+
+POSTMAN
+Import blog-platform/docs/Sugilanon.postman_collection.json.
+Run requests in order so collection scripts capture tokens and the post ID.
+A second run may get 409 during registration; that is expected.
+Do not show JWT_SECRET or .env in screenshots or presentations.
+
+ONE-MINUTE NEGATIVE TEST DEMO
+1. Reader tries POST -> 403.
+2. Author tries editing another author's post -> 403.
+3. Refresh JWT used as Blog bearer token -> 401.
+4. Logout, then try that refresh token at /refresh -> 401.
+These are successful security checks, not app failures.
+
+=== PAGE ===
+# IF SOMETHING GOES WRONG
+## Recovery plan and submission checklist
+
+SERVER WILL NOT START
+Read the terminal. Missing JWT_SECRET? Run bun run setup first.
+Existing .env is intentionally not overwritten. Keep the secret private.
+Port in use? Stop the old copy of THIS app; do not kill unrelated processes.
+Runtime resolution trouble? Run mise doctor; versions belong in .mise.toml.
+
+PAGE CANNOT REACH AUTH
+Check http://localhost:4000/health.
+Use http://localhost:5000 for the frontend, not 127.0.0.1 or file://.
+Make sure both servers are running and the allowed origin matches.
+
+LOGIN OR REFRESH FAILS
+Wrong credentials: check username/password.
+409 while registering: that username already exists; use a fresh name.
+Refresh rejected: login again. Another login, seed run, logout, or expiry may have replaced/revoked it.
+Never paste a refresh token into Blog's Bearer field.
+
+403 OR 404
+403: check the account role and the post owner. This may be correct behavior.
+404: the story may already have been deleted. Return to All stories.
+
+DATA PERSISTS
+That is intentional. A restart is NOT a reset.
+Before clearing demo data, stop both servers and back up .storage.
+No script automatically wipes your presentation data.
+
+SHORT FALLBACK SPEECH
+"Let me check which layer is failing. First I will check the health endpoints, then the request status, then the server error. I won't change the permission rules just to make a denied request succeed."
+Tagalog: "Iche-check ko muna kung connection, authentication, o permission ang issue."
+Bisaya: "Tan-awon nato ang status code para klaro asa ang problema."
+
+SUBMISSION CHECKLIST
+[ ] Rehearse the whole UI, not just login.
+[ ] Read the tested results in docs/TEST-RESULTS.md.
+[ ] Confirm the professor's Node runtime expectation.
+[ ] Review code comments and explain each key function in your own words.
+[ ] Check the branch name: midterm-exam.
+[ ] Create/select YOUR GitHub repository and add its remote URL.
+[ ] Commit any remaining changes, then push midterm-exam.
+[ ] Verify the files and branch appear on GitHub.
+[ ] Ensure .env, .storage, node_modules and session tokens are excluded.
+[ ] Upload the correct repository URL to the submission bin.
+[ ] Keep a local copy of this PDF for presentation day.
+
+LAST REMINDER
+Aim for understanding, not a perfect script.
+"Ang importante, kabalo ko unsay gibuhat sa code ug nganong mao ni ang approach."
+The important part is knowing what the code does and why this approach was chosen.
