@@ -1,0 +1,11 @@
+import express from 'express';
+import { config } from '../shared/config.js';
+import { configureApp, errorHandler, notFound } from '../shared/http.js';
+import { authRoutes } from './src/routes/authRoutes.js';
+const app = express();
+configureApp(app);
+app.get('/health', (req, res) => res.json({ service: 'Auth Server', status: 'ok' }));
+app.use(authRoutes);
+app.use(notFound);
+app.use(errorHandler);
+app.listen(config.authPort, '127.0.0.1', () => console.log('Auth Server ready at http://localhost:' + config.authPort));

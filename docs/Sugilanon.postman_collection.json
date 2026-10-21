@@ -1,0 +1,989 @@
+{
+  "info": {
+    "name": "Sugilanon — complete midterm API demo",
+    "description": "Run in order. Creates local postman_* accounts. No JWT secret required. Registration accepts 409 on repeat runs. Uses real endpoints and checks expected denial statuses.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "auth",
+      "value": "http://localhost:4000"
+    },
+    {
+      "key": "blog",
+      "value": "http://localhost:5000"
+    },
+    {
+      "key": "password",
+      "value": "PostmanDemo123!"
+    }
+  ],
+  "item": [
+    {
+      "name": "Register reader",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{auth}}/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"postman_reader\",\n  \"password\": \"{{password}}\",\n  \"role\": \"reader\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 201 or 409\", () => pm.expect([201,409]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Login reader",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{auth}}/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"postman_reader\",\n  \"password\": \"{{password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 200\", () => pm.expect([200]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));",
+              "if (pm.response.code === 200) { const data = pm.response.json(); pm.collectionVariables.set('readerAccessToken', data.accessToken); pm.collectionVariables.set('readerRefreshToken', data.refreshToken); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Register author",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{auth}}/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"postman_author\",\n  \"password\": \"{{password}}\",\n  \"role\": \"author\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 201 or 409\", () => pm.expect([201,409]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Login author",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{auth}}/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"postman_author\",\n  \"password\": \"{{password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 200\", () => pm.expect([200]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));",
+              "if (pm.response.code === 200) { const data = pm.response.json(); pm.collectionVariables.set('authorAccessToken', data.accessToken); pm.collectionVariables.set('authorRefreshToken', data.refreshToken); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Register other",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{auth}}/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"postman_other\",\n  \"password\": \"{{password}}\",\n  \"role\": \"author\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 201 or 409\", () => pm.expect([201,409]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Login other",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{auth}}/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"postman_other\",\n  \"password\": \"{{password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 200\", () => pm.expect([200]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));",
+              "if (pm.response.code === 200) { const data = pm.response.json(); pm.collectionVariables.set('otherAccessToken', data.accessToken); pm.collectionVariables.set('otherRefreshToken', data.refreshToken); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Register admin",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{auth}}/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"postman_admin\",\n  \"password\": \"{{password}}\",\n  \"role\": \"admin\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 201 or 409\", () => pm.expect([201,409]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Login admin",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{auth}}/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"postman_admin\",\n  \"password\": \"{{password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 200\", () => pm.expect([200]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));",
+              "if (pm.response.code === 200) { const data = pm.response.json(); pm.collectionVariables.set('adminAccessToken', data.accessToken); pm.collectionVariables.set('adminRefreshToken', data.refreshToken); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public: all posts",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{blog}}/api/posts"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 200\", () => pm.expect([200]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reader: own list",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{readerAccessToken}}"
+          }
+        ],
+        "url": "{{blog}}/api/me/posts"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 200\", () => pm.expect([200]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reader: publish denied",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{readerAccessToken}}"
+          }
+        ],
+        "url": "{{blog}}/api/posts",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Not allowed\",\n  \"content\": \"Reader cannot write.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 403\", () => pm.expect([403]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Refresh JWT rejected by Blog",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authorRefreshToken}}"
+          }
+        ],
+        "url": "{{blog}}/api/me/posts"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 401\", () => pm.expect([401]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Missing access token rejected",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{blog}}/api/me/posts"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 401\", () => pm.expect([401]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Author: publish",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authorAccessToken}}"
+          }
+        ],
+        "url": "{{blog}}/api/posts",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Postman presentation story\",\n  \"content\": \"Created through the real API.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 201\", () => pm.expect([201]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));",
+              "if (pm.response.code === 201) pm.collectionVariables.set('postId', pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public: one post",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{blog}}/api/posts/{{postId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 200\", () => pm.expect([200]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Author: own list",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authorAccessToken}}"
+          }
+        ],
+        "url": "{{blog}}/api/me/posts"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 200\", () => pm.expect([200]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Author: edit own post",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authorAccessToken}}"
+          }
+        ],
+        "url": "{{blog}}/api/posts/{{postId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"A refined presentation story\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 200\", () => pm.expect([200]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Other author: edit denied",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{otherAccessToken}}"
+          }
+        ],
+        "url": "{{blog}}/api/posts/{{postId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Cannot change this\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 403\", () => pm.expect([403]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Author: delete denied even for owner",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authorAccessToken}}"
+          }
+        ],
+        "url": "{{blog}}/api/posts/{{postId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 403\", () => pm.expect([403]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin: publish",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminAccessToken}}"
+          }
+        ],
+        "url": "{{blog}}/api/posts",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Admin can write too\",\n  \"content\": \"Admin post for collection testing.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 201\", () => pm.expect([201]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));",
+              "if (pm.response.code === 201) pm.collectionVariables.set('adminPostId', pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin: edit another author",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminAccessToken}}"
+          }
+        ],
+        "url": "{{blog}}/api/posts/{{postId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content\": \"Reviewed by admin.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 200\", () => pm.expect([200]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin: delete another author",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminAccessToken}}"
+          }
+        ],
+        "url": "{{blog}}/api/posts/{{postId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 200\", () => pm.expect([200]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public: deleted post is missing",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{blog}}/api/posts/{{postId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 404\", () => pm.expect([404]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin: remove own test post",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminAccessToken}}"
+          }
+        ],
+        "url": "{{blog}}/api/posts/{{adminPostId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 200\", () => pm.expect([200]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Refresh author session",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{auth}}/refresh",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refreshToken\": \"{{authorRefreshToken}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 200\", () => pm.expect([200]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));",
+              "if (pm.response.code === 200) pm.collectionVariables.set('authorAccessToken', pm.response.json().accessToken);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Logout author",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{auth}}/logout",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refreshToken\": \"{{authorRefreshToken}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 200\", () => pm.expect([200]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Revoked refresh token rejected",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{auth}}/refresh",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refreshToken\": \"{{authorRefreshToken}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 401\", () => pm.expect([401]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Access still valid after logout until expiry",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authorAccessToken}}"
+          }
+        ],
+        "url": "{{blog}}/api/me/posts"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 200\", () => pm.expect([200]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Logout reader",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{auth}}/logout",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refreshToken\": \"{{readerRefreshToken}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 200\", () => pm.expect([200]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Logout other",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{auth}}/logout",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refreshToken\": \"{{otherRefreshToken}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 200\", () => pm.expect([200]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Logout admin",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{auth}}/logout",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refreshToken\": \"{{adminRefreshToken}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Expected status 200\", () => pm.expect([200]).to.include(pm.response.code));",
+              "if (pm.response.code >= 400) pm.test('Uniform error shape', () => pm.expect(Object.keys(pm.response.json())).to.eql(['error']));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
