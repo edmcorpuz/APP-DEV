@@ -9,8 +9,6 @@ Verified locally on **21 October 2026** using Bun 1.3.13 and installed Google Ch
 | API suite: `bun run test` | **21 passed, 0 failed; 104 assertions** |
 | Browser suite: `bun run test:ui` | **19 passed, 0 failed; no captured JavaScript errors** |
 | Exported Postman collection: `bun run test:collection` | **31 request/assertion sequences passed** |
-| PDF generation: `bun run guide` | **11 pages, no page overflow** |
-| PDF extraction verification | **All source text retained on its intended page; all 11 footers present** |
 | Demo seed, first run | **4 accounts / 4 stories created through real APIs** |
 | Demo seed, second run | **0 duplicate stories added** |
 | Actual ports 4000 and 5000 | **Both health endpoints and public feed verified** |

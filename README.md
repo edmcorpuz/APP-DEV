@@ -131,17 +131,8 @@ Do not run two Auth instances against the same storage directory. This classroom
 - **Want a clean rehearsal:** stop servers and back up .storage before manually moving it aside. No destructive reset runs automatically.
 - **Runtime resolution issue:** run `mise doctor`. Versions belong in `.mise.toml`; do not edit PATH manually.
 
-## Presentation material
-
-In the parent **appdev midterm** folder:
-- `PRESENTATION-GUIDE.pdf` — cheat sheet, timed speech, code walkthrough, Q&A, troubleshooting
-- `PRESENTATION-GUIDE.txt` — searchable plain-text copy
-- `START-HERE.txt` — quick setup and submission reminders
-
-Copies of the PDF and its editable text source are also in `docs/`, so they stay with the Git repository. Regenerate the PDF with `bun run guide`.
-
 ## Submission
 
-The repository is initialized on **midterm-exam**. A GitHub remote was not supplied, so **nothing has been pushed or published**. Create/select your own GitHub repository, add its URL as `origin`, and push this branch when ready. Never add .env, .storage, node_modules or browser session tokens.
+The project is published on the **midterm-exam** branch of [edmcorpuz/APP-DEV](https://github.com/edmcorpuz/APP-DEV/tree/midterm-exam). Never add .env, .storage, node_modules or browser session tokens.
 
 The full-stack +3 is evaluated by your professor; implementation and tests do not guarantee a grade.
