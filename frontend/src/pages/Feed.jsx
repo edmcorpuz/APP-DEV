@@ -29,7 +29,7 @@ export default function Feed() {
           onChange={event => setQuery(event.target.value)}
         />
       </div>
-      {error && <p className="error">{error} Is the Blog API running on port 5000?</p>}
+      {error && <p className="error">{error}</p>}
       {!posts && !error && <p className="muted">Loading posts…</p>}
       {posts && shown.length === 0 && <p className="muted">{q ? 'No posts match your search.' : 'No posts yet.'}</p>}
       <div className="grid">
