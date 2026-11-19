@@ -1,4 +1,4 @@
-# Sugilanon Blog Platform — Final Exam
+# Sugilanon Blog Platform: Final Exam
 
 ReactJS frontend → two ExpressJS servers → MariaDB (XAMPP).
 
@@ -77,7 +77,7 @@ Every id and foreign key is a signed `INT`, so the FK signedness matches (see th
 
 | Method | Endpoint | Who | Success | Errors |
 |---|---|---|---|---|
-| GET | /api/posts | public | 200 | — |
+| GET | /api/posts | public | 200 | none |
 | GET | /api/posts/:id | public | 200 | 404 |
 | POST | /api/posts | author, admin | 201 | 400, 401, 403 |
 | PUT | /api/posts/:id | post owner or admin | 200 | 400, 401, 403, 404 |
