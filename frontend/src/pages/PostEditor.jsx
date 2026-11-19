@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../AuthContext.jsx';
-import { readTime } from '../components/Story.jsx';
+import { Ceb, readTime } from '../components/Story.jsx';
 
 // Used for both /new (POST /api/posts) and /posts/:id/edit (PUT /api/posts/:id).
 export default function PostEditor() {
@@ -52,7 +52,10 @@ export default function PostEditor() {
 
   return (
     <form className="form editor" onSubmit={handleSubmit}>
-      <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)', fontWeight: 700 }}>{editing ? 'Edit story' : 'New story'}</h1>
+      <div>
+        <h1><Ceb className="">{editing ? 'Usba ang sugilanon' : 'Bag-ong sugilanon'}</Ceb></h1>
+        <p className="label" style={{ color: 'var(--gold-text)', margin: '8px 0 0' }}>{editing ? 'Edit story' : 'New story'}</p>
+      </div>
       <label>Headline<input name="title" className="title-field" value={form.title} onChange={update} maxLength={255} required /></label>
       <label>Story<textarea name="content" className="body-field" rows={14} value={form.content} onChange={update} required /></label>
       {error && <p className="error-text" role="alert">{error}</p>}

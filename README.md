@@ -107,8 +107,8 @@ blog-platform/
 │   ├── db.js
 │   └── src/ routes/ controllers/ middleware/ (authenticate.js, authorize.js)
 └── frontend/                React + Vite + Motion
-    ├── art/weave.mjs        generates the masthead artwork (node frontend/art/weave.mjs)
-    ├── public/art/          woven-broadsheet.svg (used on the site) and .png
+    ├── art/sunrise.mjs      generates the masthead artwork (node frontend/art/sunrise.mjs)
+    ├── public/art/          adlaw.png (used on the site) and adlaw.svg
     └── src/ AuthContext.jsx, App.jsx, pages/, components/
 ```
 
