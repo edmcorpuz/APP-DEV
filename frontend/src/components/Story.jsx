@@ -12,11 +12,29 @@ export const excerpt = (text, max) => (text.length > max ? `${text.slice(0, max)
 // The headline shares a view-transition name with the article <h1>, so it glides into place.
 export const titleTransition = id => ({ viewTransitionName: `story-title-${id}` });
 
-// Rows arrive in order like a press laying down lines, then settle without wobble.
-const list = { hidden: {}, shown: { transition: { staggerChildren: 0.06 } } };
+// Bisaya (Cebuano) words, marked so screen readers switch pronunciation.
+export const Ceb = ({ children, className = 'ceb' }) => <span lang="ceb" className={className}>{children}</span>;
+
+// Half sun with eight main rays: the Deco fan and the eight-rayed sun of the flag.
+const RAYS = Array.from({ length: 8 }, (_, k) => Math.PI + (Math.PI * (k + 1)) / 9);
+export function Sunburst({ className = 'ornament' }) {
+  return (
+    <svg className={className} viewBox="0 0 64 34" aria-hidden="true" focusable="false">
+      {RAYS.map((a, k) => (
+        <line key={k} x1={32 + Math.cos(a) * 13} y1={32 + Math.sin(a) * 13} x2={32 + Math.cos(a) * 30} y2={32 + Math.sin(a) * 30}
+          stroke="currentColor" strokeWidth={k % 2 ? 1.6 : 2.6} strokeLinecap="square" />
+      ))}
+      <path d="M21 32a11 11 0 0 1 22 0Z" fill="currentColor" />
+      <line x1="2" y1="33" x2="62" y2="33" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  );
+}
+
+// Rows take their seats in order, then everything is still.
+const list = { hidden: {}, shown: { transition: { staggerChildren: 0.07 } } };
 const row = {
-  hidden: { opacity: 0, y: 14 },
-  shown: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.2, 0.9, 0.1, 1] } },
+  hidden: { opacity: 0, y: 12 },
+  shown: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
 };
 
 export function Byline({ post }) {
@@ -35,25 +53,32 @@ export function Notice({ children }) {
   );
 }
 
+export function SectionHead({ ceb, en, as: Tag = 'h2' }) {
+  return (
+    <div className="section-head plate">
+      <div>
+        <Tag><Ceb className="">{ceb}</Ceb></Tag>
+        <span className="label">{en}</span>
+      </div>
+    </div>
+  );
+}
+
 export function LeadStory({ post }) {
   return (
-    <motion.article className="lead" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.15, ease: [0.2, 0.9, 0.1, 1] }}>
-      <div className="head">
-        <span className="tag">Latest</span>
-        <h2 style={titleTransition(post.id)}>
-          <Link to={`/posts/${post.id}`} viewTransition>{post.title}</Link>
-        </h2>
-      </div>
-      <div className="aside">
-        <p className="excerpt">{excerpt(post.content, 260)}</p>
-        <p className="meta" style={{ marginTop: 16 }}>By {post.authorName} · {readTime(post.content)}</p>
-      </div>
+    <motion.article className="lead" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}>
+      <Sunburst />
+      <span className="tag label"><Ceb className="">Bag-o</Ceb><span aria-hidden="true">·</span>Latest</span>
+      <h2 style={titleTransition(post.id)}>
+        <Link to={`/posts/${post.id}`} viewTransition>{post.title}</Link>
+      </h2>
+      <p className="excerpt">{excerpt(post.content, 240)}</p>
+      <p className="meta">By {post.authorName} · {readTime(post.content)}</p>
     </motion.article>
   );
 }
 
-// layout + AnimatePresence: when search filters the list, remaining rows slide into place
-// instead of jumping, and removed rows fade out, so you can see what the filter did.
+// layout + AnimatePresence: when search filters the list, remaining rows slide into place.
 export function StoryIndex({ posts, start = 1, showExcerpt = false }) {
   return (
     <motion.ol className="index" variants={list} initial="hidden" animate="shown">
@@ -78,9 +103,8 @@ export function StoriesSkeleton({ label = 'Loading stories…' }) {
     <div className="skeleton" aria-busy="true">
       <span className="sr-only">{label}</span>
       <span className="big" aria-hidden="true" />
-      <span aria-hidden="true" style={{ width: '55%' }} />
-      <span aria-hidden="true" style={{ width: '85%' }} />
-      <span aria-hidden="true" style={{ width: '40%' }} />
+      <span aria-hidden="true" style={{ width: '45%' }} />
+      <span aria-hidden="true" style={{ width: '75%' }} />
     </div>
   );
 }

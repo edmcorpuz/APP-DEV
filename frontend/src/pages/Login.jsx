@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext.jsx';
-import { Notice } from '../components/Story.jsx';
+import { Ceb, Notice } from '../components/Story.jsx';
 
 export default function Login() {
   const { login } = useAuth();
@@ -28,8 +28,9 @@ export default function Login() {
 
   return (
     <div className="split">
-      <div>
-        <h1>Welcome back.</h1>
+      <div className="intro">
+        <h1><Ceb className="">Maayong pagbalik</Ceb></h1>
+        <p className="label en">Welcome back</p>
         <p className="dek">Log in to see your stories, and to write if you're an author.</p>
       </div>
       <form className="form" onSubmit={handleSubmit}>

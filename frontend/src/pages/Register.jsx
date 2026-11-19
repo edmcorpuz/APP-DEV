@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext.jsx';
+import { Ceb } from '../components/Story.jsx';
 
 const ROLES = [
   ['reader', 'Reader', 'Read every story and keep a list of your own.'],
@@ -32,8 +33,9 @@ export default function Register() {
 
   return (
     <div className="split">
-      <div>
-        <h1>Join Sugilanon.</h1>
+      <div className="intro">
+        <h1><Ceb className="">Apil na</Ceb></h1>
+        <p className="label en">Join Sugilanon</p>
         <p className="dek">Pick a role now. Readers browse, authors write, admins keep the front page tidy.</p>
       </div>
       <form className="form" onSubmit={handleSubmit}>

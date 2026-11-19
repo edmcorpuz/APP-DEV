@@ -2,24 +2,19 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useAuth } from '../AuthContext.jsx';
-import { LeadStory, Notice, StoryIndex, StoriesSkeleton } from '../components/Story.jsx';
+import { Ceb, LeadStory, Notice, SectionHead, StoryIndex, StoriesSkeleton } from '../components/Story.jsx';
 
 const today = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 const NAME = 'Sugilanon';
+const ease = [0.22, 1, 0.36, 1];
 
-// The masthead is the focal point, so it is the one thing that makes an entrance:
-// letters set one after another like type being laid into a forme.
+// The masthead is the focal point: letters settle one by one, like a marquee being lit.
 function Masthead() {
   return (
     <h1 aria-label={NAME}>
       {[...NAME].map((letter, i) => (
-        <motion.span
-          key={i}
-          aria-hidden="true"
-          initial={{ opacity: 0, y: '0.3em' }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: i * 0.035, ease: [0.2, 0.9, 0.1, 1] }}
-        >
+        <motion.span key={i} aria-hidden="true" initial={{ opacity: 0, y: '0.25em' }} animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 + i * 0.045, ease }}>
           {letter}
         </motion.span>
       ))}
@@ -50,26 +45,32 @@ export default function Feed() {
   return (
     <>
       <section className="masthead">
-        <div className="title">
-          <Masthead />
-          <p className="dek">Bisaya for story. Short reads from our authors, open to anyone.</p>
+        <p className="kicker label plate"><span>Bisaya · <Ceb className="">istorya</Ceb> · story</span></p>
+        <Masthead />
+        <p className="dek">
+          <Ceb>Mga sugilanon gikan sa among mga magsusulat.</Ceb>
+          Stories from our writers, open to anyone.
+        </p>
+
+        <div className="facade">
+          <div className="pillar">
+            <span className="label">{today}</span>
+            <span className="count">{posts ? posts.length : '·'}</span>
+            <span className="meta">{posts?.length === 1 ? 'story published' : 'stories published'}</span>
+          </div>
+          <motion.figure className="arch" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.3, ease }}>
+            {/* Decorative: an original Deco sunrise over the Visayan sea (see DESIGN.md). */}
+            <img src="/art/adlaw.png" alt="" width="960" height="1200" fetchpriority="high" />
+          </motion.figure>
+          <div className="pillar search">
+            <label htmlFor="search" className="label">Search · <Ceb className="">Pangitaa</Ceb></label>
+            <input id="search" type="search" placeholder="Title or author" value={query} onChange={e => setQuery(e.target.value)} />
+          </div>
         </div>
-        <figure className="art">
-          {/* Decorative: an original woven composition (see DESIGN.md), so it carries no alt text. */}
-          <img src="/art/woven-broadsheet.svg" alt="" width="960" height="1200" fetchpriority="high" />
-        </figure>
       </section>
+      <div className="waves" aria-hidden="true" />
 
-      <div className="strip">
-        <span>{today}</span>
-        <span className="count">{posts ? `${posts.length} ${posts.length === 1 ? 'story' : 'stories'}` : '…'}</span>
-        <div className="search">
-          <label htmlFor="search">Search</label>
-          <input id="search" type="search" placeholder="Title or author" value={query} onChange={e => setQuery(e.target.value)} />
-        </div>
-      </div>
-
-      {state?.notice && <Notice>{state.notice}</Notice>}
+      {state?.notice && <div style={{ textAlign: 'center' }}><Notice>{state.notice}</Notice></div>}
 
       {error && (
         <div className="state" role="alert">
@@ -93,10 +94,10 @@ export default function Feed() {
 
       {posts && posts.length > 0 && q && (
         results.length ? (
-          <>
-            <div className="section-head" style={{ marginTop: 32 }}><h2>“{query.trim()}”</h2><span className="meta">{results.length} found</span></div>
+          <div style={{ marginTop: 48 }}>
+            <SectionHead ceb={`“${query.trim()}”`} en={`${results.length} found`} />
             <StoryIndex posts={results} showExcerpt />
-          </>
+          </div>
         ) : (
           <div className="state">
             <h2>Nothing matches “{query.trim()}”.</h2>
@@ -111,7 +112,7 @@ export default function Feed() {
           <LeadStory post={posts[0]} />
           {posts.length > 1 && (
             <>
-              <div className="section-head"><h2>More stories</h2><span className="meta">{posts.length - 1} more</span></div>
+              <SectionHead ceb="Uban pang mga sugilanon" en="More stories" />
               <StoryIndex posts={posts.slice(1)} start={2} />
             </>
           )}

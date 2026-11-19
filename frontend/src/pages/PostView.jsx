@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../AuthContext.jsx';
-import { Byline, Notice, formatDate, titleTransition } from '../components/Story.jsx';
+import { Byline, Ceb, Notice, Sunburst, formatDate, titleTransition } from '../components/Story.jsx';
 
 export default function PostView() {
   const { id } = useParams();
@@ -33,7 +33,8 @@ export default function PostView() {
   if (error && !post) {
     return (
       <div className="state" role="alert">
-        <h1 style={{ fontSize: '2.4rem', marginBottom: 8 }}>This story isn't here.</h1>
+        <h1><Ceb className="">Wala makit-i.</Ceb></h1>
+        <p className="label" style={{ color: 'var(--gold-text)' }}>This story isn't here</p>
         <p>{error} It may have been deleted, or the link is wrong.</p>
         <Link to="/" className="button" viewTransition>Back to all stories</Link>
       </div>
@@ -47,13 +48,16 @@ export default function PostView() {
 
   return (
     <article className="article">
-      <Link to="/" className="back" viewTransition>Back to all stories</Link>
-      {state?.notice && <div><Notice>{state.notice}</Notice></div>}
-      <h1 style={titleTransition(post.id)}>{post.title}</h1>
-      <div className="byline">
-        <Byline post={post} />
-        {edited && <p className="meta">Edited {formatDate(post.updated_at)}</p>}
-      </div>
+      <header>
+        <Link to="/" className="back" viewTransition><Ceb className="">Balik</Ceb> · Back to all stories</Link>
+        {state?.notice && <Notice>{state.notice}</Notice>}
+        <Sunburst />
+        <h1 style={titleTransition(post.id)}>{post.title}</h1>
+        <div className="byline">
+          <Byline post={post} />
+          {edited && <p className="meta">Edited {formatDate(post.updated_at)}</p>}
+        </div>
+      </header>
       <div className="body">{post.content}</div>
       {error && <p className="error-text" role="alert">{error}</p>}
       {(canEdit || canDelete) && (

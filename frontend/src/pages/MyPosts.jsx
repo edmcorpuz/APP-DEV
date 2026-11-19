@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../AuthContext.jsx';
-import { StoryIndex, StoriesSkeleton } from '../components/Story.jsx';
+import { SectionHead, StoryIndex, StoriesSkeleton } from '../components/Story.jsx';
 
 // GET /api/me/posts: any logged-in user, returns only their own posts.
 export default function MyPosts() {
@@ -20,10 +20,10 @@ export default function MyPosts() {
 
   return (
     <>
-      <div className="section-head" style={{ paddingTop: 8 }}>
-        <h1 style={{ fontSize: 'clamp(2.4rem, 6vw, 4rem)', fontStyle: 'normal', fontWeight: 700 }}>My stories</h1>
-        {canWrite && <Link to="/new" className="button primary" viewTransition>Write a story</Link>}
+      <div style={{ paddingTop: 40 }}>
+        <SectionHead as="h1" ceb="Akong mga sugilanon" en="My stories" />
       </div>
+      {canWrite && <p style={{ textAlign: 'center', margin: '0 0 28px' }}><Link to="/new" className="button primary" viewTransition>Write a story</Link></p>}
 
       {error && (
         <div className="state" role="alert">

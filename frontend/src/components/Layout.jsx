@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext.jsx';
+import { Ceb, Sunburst } from './Story.jsx';
 
 const systemTheme = () => (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 
@@ -43,7 +44,7 @@ export default function Layout() {
     <>
       <header className="site-header">
         <div className="wrap header-row">
-          <Link to="/" className="wordmark" viewTransition>Sugilanon</Link>
+          <Link to="/" className="wordmark" viewTransition><Sunburst className="" />Sugilanon</Link>
           <button
             type="button"
             className="button quiet menu-button"
@@ -76,9 +77,12 @@ export default function Layout() {
         <Outlet />
       </main>
       <footer className="site-footer">
+        <div className="waves" aria-hidden="true" />
         <div className="wrap">
-          <span className="big">Sugilanon</span>
-          <span>Bisaya for story. App Dev final exam project.</span>
+          <Sunburst className="" />
+          <span className="big"><Ceb className="">Salamat sa pagbasa</Ceb></span>
+          <span>Thank you for reading.</span>
+          <span className="small">Sugilanon, Bisaya for story. App Dev final exam project.</span>
         </div>
       </footer>
     </>

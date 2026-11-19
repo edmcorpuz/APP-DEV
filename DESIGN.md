@@ -1,62 +1,76 @@
 # Sugilanon design direction
 
-Source: design philosophy written with the canvas-design skill; tokens generated with the
-ui-ux-pro-max design-system search (`"blog storytelling publishing community"`, variance 8,
-motion 6, density 3), then checked against WCAG AA.
+Brief from the owner: an Art Deco style and feel, Filipino, and true to Sugilanon being Bisaya.
+Philosophy written with the canvas-design skill. Type pairing from the ui-ux-pro-max
+typography search ("Art Deco": Poiret One + Didact Gothic), extended with Josefin Sans so
+headlines stay readable. Colors chosen for the brief and checked against WCAG AA.
 
-Dial: ENERGY 3 / RHYTHM 3 / MOTION 2
+Dial: ENERGY 2 / RHYTHM 2 / MOTION 2
 
-## Movement: Woven Broadsheet
+## Movement: Adlaw Deco
 
-Woven Broadsheet treats a page as a sheet of newsprint that has been cut into strips and
-rewoven by hand. Every surface is flat and honest about what it is: a ruled column, a block of
-ink, a strip of paper crossing another. Nothing floats, nothing glows, nothing pretends to be
-glass. Depth exists only where a hand would press, and it is drawn as a hard offset, never as a
-soft blur. The result should feel meticulously crafted, the product of someone who has set type
-and cut paper for decades.
+Adlaw Deco is the geometry of a sunrise drawn by a draughtsman who grew up beside the sea.
+Light does not glow here; it radiates in ruled lines, fanning from a single point the way a
+1930s theatre facade fans its plaster rays above the door. Every ray is counted and spaced by
+hand. The composition is symmetrical and calm, built on a centre line, and its confidence comes
+from that order: meticulously measured, the product of someone who has drawn ornament for a
+lifetime.
 
-Space is built from heavy rules and generous gutters. Thick black lines are structure, not
-decoration: they divide, they frame, and they tell the eye where one thought ends. Between them,
-whitespace is deliberate and wide, so the dense parts read as dense on purpose. Compositions are
-asymmetric. A single oversized element takes most of the width and the rest arranges itself
-around it, the way a lead headline dominates a front page. Every alignment is the result of
-painstaking adjustment, never of a default grid.
+Material is lacquer and capiz. Deep sea green stands in for the polished dark wood and the
+water at dusk; warm ivory is the translucent shell of a capiz window with daylight behind it;
+gold is the thin inlay that outlines everything precious. Gold is never a flood. It is a hairline,
+a double rule, a single filled panel at the one place that matters, applied with painstaking
+restraint so it still reads as gold.
 
-Color is almost absent. Near-black ink on near-white stock carries everything, and a single
-saturated pink appears as a printed block, never as thin text, marking the one place that
-matters on each screen. Because the accent is rare it lands hard. Its restraint is the
-expertise: one strike of color, placed with master-level care, does more than ten.
+Ornament has a job. A double gold frame says "this is the feature". A stepped band of waves says
+"a new section begins", as a tide line marks the shore. An arched window holds the one picture on
+the page. Nothing is added for its own sake; each motif repeats in the same proportions everywhere
+it appears, so the whole site feels drawn from one master sheet, labored over until no line is
+out of place.
 
-Scale does the talking. Display type is enormous and set tight, a high-contrast serif whose
-hairlines turn to near-nothing at the largest sizes. Reading text is a plain, sturdy sans with
-nothing to prove. Numbers are tabular and treated as typographic objects in their own right.
-The rhythm comes from the jump between the huge and the small, with very little in between.
+Type speaks in two registers. Display letters are tall, thin and geometric, the lettering of
+cinema marquees and shopfronts, used large and sparingly. Everything people actually read is set
+in a plain geometric sans that never strains the eye. Small labels are spaced generously and
+carry the Bisaya words of the place, quietly, beside the English, so the language is felt as
+part of the architecture rather than announced.
 
-Motion is mechanical and brief. Things arrive in order, like a press laying down rows, and
-settle without wobble. A pressed control drops into its own shadow. Nothing loops, nothing
-drifts, and anyone who asks the system for less motion gets a still, fully readable page. Every
-frame should look labored over, as if the timing were tuned by hand until it disappeared.
+Motion is ceremonial and brief: rays fan open once, the title settles, rows arrive in order like
+guests taking their seats. Then everything is still. Anyone who asks for less motion receives the
+finished, fully composed page at once. The craft is in the timing, tuned until it feels
+inevitable.
 
 ## Tokens
 
-| Role | Light | Dark | Rule |
+| Role | Light | Dark | Check |
 |---|---|---|---|
-| Background | `#FAFAFA` | `#09090B` | |
-| Foreground / ink | `#09090B` | `#FAFAFA` | 19.06:1 |
-| Card | `#FFFFFF` | `#18181B` | |
-| Muted text | `#475569` | `#A1A1AA` | 7.26:1 / 7.76:1 |
-| Accent fill | `#EC4899` | `#F472B6` | fill only, always with black text (5.64:1 / 7.51:1) and a black border. Never pink text on the light background (3.38:1, fails). |
-| Destructive | `#DC2626` | `#F87171` | 4.63:1 / 7.19:1 |
+| Background (capiz ivory / sea at night) | `#F4EEDF` | `#0D1918` | |
+| Card | `#FBF7EE` | `#132422` | |
+| Ink | `#13201F` | `#F1E9D6` | 14.47:1 / 14.85:1 |
+| Muted text | `#4F5B57` | `#B4B9AE` | 6.12:1 / 8.97:1 |
+| Gold rule (lines, frames) | `#A9823A` | `#B8954D` | 3.05:1 / 6.37:1 non-text |
+| Gold text (large labels only) | `#8A6626` | `#D8B568` | 4.53:1 / 9.18:1 |
+| Gold fill (with ink text) | `#D2AE5C` | `#D8B568` | 7.93:1 / 9.18:1 |
+| Sea (primary button, ivory text) | `#0E4744` | `#1B5E59` | 9.06:1 / 6.22:1 |
+| Danger | `#A3271F` | `#F08A7E` | 6.33:1 / 7.39:1 |
 
-- Display: Libre Bodoni (high-contrast editorial serif, headlines and numbers only)
-- Text and interface: Public Sans (plain, sturdy, readable at small sizes)
-- Radius: 0 everywhere. Borders: 2px structure, 3px for the heaviest rules.
-- Elevation: one hard offset shadow (`6px 6px 0 ink`), only on things you can press.
+- Masthead only: Poiret One (thin Deco display, unreadable small, so never below ~3rem)
+- Headlines, labels, buttons: Josefin Sans 600/700 (geometric 1930s letterforms with real weights)
+- Reading text: Didact Gothic (the generated body face, plain and open)
+- Radius: 0, except the arched window that frames the artwork
+- No shadows. Depth comes from double rules (border + outline offset), the Deco way.
+
+## Bisaya in the interface
+
+English stays the primary text so nobody depends on a translation. Bisaya (Cebuano) phrases sit
+beside it as labels, marked `lang="ceb"` so screen readers pronounce them correctly:
+Bag-o (new), Uban pang mga sugilanon (more stories), Mga sugilanon gikan sa among mga magsusulat
+(stories from our writers), Maayong pagbalik (welcome back), Apil na (join now), Balik (back),
+Salamat sa pagbasa (thank you for reading). A native speaker should proofread these.
 
 ## Why each decision (R-31)
 
-- Black and white with one pink: the generated system's "editorial black + accent pink"; one accent keeps the focal point obvious.
-- Libre Bodoni + Public Sans: the generated magazine pairing; serif for voice, sans for reading and controls.
-- Square corners and heavy rules: the brutalist style the generator matched to editorial and media sites; rules are structure.
-- Hard offset shadow on pressables only: a press can visibly drop into it, which is the feedback.
-- Woven artwork: an original generated composition that repeats the strip-and-weave idea in the masthead.
+- Sea green, ivory, gold: lacquer, capiz and inlay; one accent (gold) carries the luxury.
+- Sunburst with eight main rays: the Deco fan, and a quiet nod to the eight-rayed sun of the Philippine flag.
+- Wave bands as section dividers: the Visayan sea, drawn as a Deco stepped pattern; they mark section starts.
+- Arched window for the artwork: the arch of Filipino church windows and Deco facades.
+- Symmetric, centred masthead: Deco facades are symmetric; the story list and article stay left-aligned for reading.
