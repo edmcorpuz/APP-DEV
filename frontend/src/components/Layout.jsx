@@ -1,10 +1,38 @@
-import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext.jsx';
+
+const systemTheme = () => (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+function ThemeToggle() {
+  const [theme, setTheme] = useState(() => document.documentElement.dataset.theme || systemTheme());
+  function toggle() {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch { /* private mode: theme just won't persist */ }
+    setTheme(next);
+  }
+  return (
+    <button type="button" className="link-button" aria-pressed={theme === 'dark'} onClick={toggle}>
+      Dark mode
+    </button>
+  );
+}
 
 export default function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
   const canWrite = user && ['author', 'admin'].includes(user.role);
+
+  useEffect(() => setMenuOpen(false), [pathname]);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = event => event.key === 'Escape' && setMenuOpen(false);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [menuOpen]);
 
   async function handleLogout() {
     await logout();
@@ -15,20 +43,30 @@ export default function Layout() {
     <>
       <header className="site-header">
         <div className="wrap header-row">
-          <Link to="/" className="brand">Sugilanon</Link>
-          <nav>
-            <NavLink to="/" end>Stories</NavLink>
-            {user && <NavLink to="/me">My posts</NavLink>}
-            {canWrite && <NavLink to="/new">Write</NavLink>}
+          <Link to="/" className="wordmark" viewTransition>Sugilanon</Link>
+          <button
+            type="button"
+            className="button ghost menu-button"
+            aria-expanded={menuOpen}
+            aria-controls="site-nav"
+            onClick={() => setMenuOpen(open => !open)}
+          >
+            {menuOpen ? 'Close' : 'Menu'}
+          </button>
+          <nav id="site-nav" className={`site-nav${menuOpen ? ' open' : ''}`} aria-label="Main">
+            <NavLink to="/" end viewTransition>Stories</NavLink>
+            {user && <NavLink to="/me" viewTransition>My stories</NavLink>}
+            {canWrite && <NavLink to="/new" viewTransition>Write a story</NavLink>}
+            <ThemeToggle />
             {user ? (
               <>
-                <span className="who">{user.username} <span className={`role role-${user.role}`}>{user.role}</span></span>
+                <span className="who">{user.username}&nbsp;<span>({user.role})</span></span>
                 <button type="button" className="link-button" onClick={handleLogout}>Log out</button>
               </>
             ) : (
               <>
-                <NavLink to="/login">Log in</NavLink>
-                <NavLink to="/register" className="button small">Sign up</NavLink>
+                <NavLink to="/login" viewTransition>Log in</NavLink>
+                <NavLink to="/register" viewTransition>Create account</NavLink>
               </>
             )}
           </nav>
@@ -37,7 +75,10 @@ export default function Layout() {
       <main className="wrap">
         <Outlet />
       </main>
-      <footer className="wrap site-footer">React → Express (Auth :4000, Blog :5000) → MariaDB</footer>
+      <footer className="wrap site-footer">
+        <span>Sugilanon. Bisaya for story.</span>
+        <span>App Dev final exam project</span>
+      </footer>
     </>
   );
 }

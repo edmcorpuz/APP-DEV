@@ -2,6 +2,12 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext.jsx';
 
+const ROLES = [
+  ['reader', 'Reader', 'Read every story and keep a list of your own.'],
+  ['author', 'Author', 'Publish stories and edit the ones you wrote.'],
+  ['admin', 'Admin', 'Edit or delete any story on the site.'],
+];
+
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -16,32 +22,44 @@ export default function Register() {
     setBusy(true);
     setError('');
     try {
-      await register(form);
-      navigate('/login', { state: { registered: true } });
+      await register({ ...form, username: form.username.trim(), email: form.email.trim() });
+      navigate('/login', { state: { registered: true, username: form.username.trim() }, viewTransition: true });
     } catch (err) {
       setError(err.message);
-    } finally {
       setBusy(false);
     }
   }
 
   return (
-    <form className="form-card" onSubmit={handleSubmit}>
-      <h1>Create an account</h1>
-      <label>Username<input name="username" value={form.username} onChange={update} autoComplete="username" minLength={3} maxLength={50} required /></label>
-      <label>Email<input name="email" type="email" value={form.email} onChange={update} autoComplete="email" required /></label>
-      <label>Password<input name="password" type="password" value={form.password} onChange={update} autoComplete="new-password" minLength={8} maxLength={128} required /></label>
-      <label>
-        Role
-        <select name="role" value={form.role} onChange={update}>
-          <option value="reader">Reader — read posts</option>
-          <option value="author">Author — write and edit your posts</option>
-          <option value="admin">Admin — edit and delete any post</option>
-        </select>
-      </label>
-      {error && <p className="error">{error}</p>}
-      <button className="button" disabled={busy}>{busy ? 'Creating…' : 'Sign up'}</button>
-      <p className="muted">Already registered? <Link to="/login">Log in</Link></p>
-    </form>
+    <div className="split">
+      <div>
+        <h1>Join Sugilanon.</h1>
+        <p className="dek">Pick a role now. Readers browse, authors write, admins keep the front page tidy.</p>
+      </div>
+      <form className="form" onSubmit={handleSubmit}>
+        <label>
+          Username <span className="hint">3 to 50 letters, numbers or underscores</span>
+          <input name="username" value={form.username} onChange={update} autoComplete="username" minLength={3} maxLength={50} pattern="[A-Za-z0-9_]+" required />
+        </label>
+        <label>Email<input name="email" type="email" value={form.email} onChange={update} autoComplete="email" required /></label>
+        <label>
+          Password <span className="hint">At least 8 characters</span>
+          <input name="password" type="password" value={form.password} onChange={update} autoComplete="new-password" minLength={8} maxLength={128} required />
+        </label>
+        <fieldset>
+          <legend>Role</legend>
+          {ROLES.map(([value, name, description]) => (
+            <label key={value} className="choice">
+              <input type="radio" name="role" value={value} checked={form.role === value} onChange={update} />
+              <strong>{name}</strong>
+              <span className="hint">{description}</span>
+            </label>
+          ))}
+        </fieldset>
+        {error && <p className="error-text" role="alert">{error}</p>}
+        <div><button className="button primary" disabled={busy}>{busy ? 'Creating account…' : 'Create account'}</button></div>
+        <p className="footnote">Already have an account? <Link to="/login" viewTransition>Log in</Link></p>
+      </form>
+    </div>
   );
 }

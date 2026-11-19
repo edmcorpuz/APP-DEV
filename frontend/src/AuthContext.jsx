@@ -19,6 +19,8 @@ async function request(url, options = {}) {
   const response = await fetch(url, {
     ...options,
     headers: { 'Content-Type': 'application/json', ...options.headers },
+  }).catch(() => {
+    throw new Error("Can't reach the server. Check that npm run dev is still running.");
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
