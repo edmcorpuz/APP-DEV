@@ -1,4 +1,6 @@
+import { lazy, Suspense } from 'react';
 import { Link, Navigate, Route, Routes } from 'react-router-dom';
+import { loadLapuLapu, getLapuLapu } from './lapulapuPage.js';
 import { useAuth } from './AuthContext.jsx';
 import Layout from './components/Layout.jsx';
 import Feed from './pages/Feed.jsx';
@@ -33,12 +35,22 @@ function Message({ title, children }) {
   );
 }
 
+// The Lapu-Lapu page carries a large panorama, so it is its own chunk. It is preloaded while the
+// home page is idle (and on hover), so the arch-to-panorama morph never lands on a loading state.
+const LazyLapuLapu = lazy(loadLapuLapu);
+function LapuLapuRoute() {
+  const Page = getLapuLapu();
+  if (Page) return <Page />;
+  return <Suspense fallback={<div className="skeleton" aria-busy="true"><span className="sr-only">Loading the story…</span></div>}><LazyLapuLapu /></Suspense>;
+}
+
 export default function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<Feed />} />
         <Route path="posts/:id" element={<PostView />} />
+        <Route path="sugilanon/lapu-lapu" element={<LapuLapuRoute />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
         <Route path="me" element={<RequireAuth><MyPosts /></RequireAuth>} />

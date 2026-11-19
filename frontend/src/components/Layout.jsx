@@ -27,7 +27,8 @@ export default function Layout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const canWrite = user && ['author', 'admin'].includes(user.role);
 
-  useEffect(() => setMenuOpen(false), [pathname]);
+  // A new page starts at the top (and the menu closes).
+  useEffect(() => { setMenuOpen(false); window.scrollTo(0, 0); }, [pathname]);
   useEffect(() => {
     if (!menuOpen) return;
     const onKey = event => event.key === 'Escape' && setMenuOpen(false);

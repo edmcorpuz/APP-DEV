@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
+import lapulapuSvg from '../art/lapulapu.svg?raw';
+import { loadLapuLapu } from '../lapulapuPage.js';
 
 export const formatDate = value => new Date(value).toLocaleDateString(undefined, {
   year: 'numeric', month: 'short', day: 'numeric',
@@ -42,8 +44,26 @@ const MURALS = {
   },
 };
 
+// Inline SVG (our own generated file) so CSS can animate its layers; decorative, so hidden from
+// screen readers while the link carries the accessible name.
+export const MuralArt = ({ svg }) => <span className="mural-art" aria-hidden="true" dangerouslySetInnerHTML={{ __html: svg }} />;
+
 export function Mural({ name, priority = false }) {
   const { title, caption } = MURALS[name];
+  if (name === 'lapulapu') {
+    return (
+      <figure className="mural">
+        <Link to="/sugilanon/lapu-lapu" viewTransition className="arch mural-link" style={{ viewTransitionName: 'mural-hero' }}
+          aria-label={`${title}: open his story`} onPointerEnter={loadLapuLapu} onFocus={loadLapuLapu}>
+          <MuralArt svg={lapulapuSvg} />
+        </Link>
+        <figcaption>
+          <strong>{title}</strong>{caption}
+          <span className="hint">Hover the mural to wake it. Open it to read his <Ceb className="">sugilanon</Ceb>.</span>
+        </figcaption>
+      </figure>
+    );
+  }
   return (
     <figure className="mural">
       <motion.div className="arch" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}>
