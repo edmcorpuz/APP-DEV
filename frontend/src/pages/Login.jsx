@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext.jsx';
-import { Ceb, Notice } from '../components/Story.jsx';
+import { Ceb, Mural, Notice } from '../components/Story.jsx';
 
 export default function Login() {
   const { login } = useAuth();
@@ -32,6 +32,7 @@ export default function Login() {
         <h1><Ceb className="">Maayong pagbalik</Ceb></h1>
         <p className="label en">Welcome back</p>
         <p className="dek">Log in to see your stories, and to write if you're an author.</p>
+        <Mural name="kudarat" />
       </div>
       <form className="form" onSubmit={handleSubmit}>
         {state?.registered && <Notice>Account created. Log in with your new password.</Notice>}

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useAuth } from '../AuthContext.jsx';
-import { Ceb, LeadStory, Notice, SectionHead, StoryIndex, StoriesSkeleton } from '../components/Story.jsx';
+import { Ceb, LeadStory, Mural, Notice, SectionHead, StoryIndex, StoriesSkeleton } from '../components/Story.jsx';
 
 const today = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 const NAME = 'Sugilanon';
@@ -58,10 +58,7 @@ export default function Feed() {
             <span className="count">{posts ? posts.length : '·'}</span>
             <span className="meta">{posts?.length === 1 ? 'story published' : 'stories published'}</span>
           </div>
-          <motion.figure className="arch" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.3, ease }}>
-            {/* Decorative: an original Deco sunrise over the Visayan sea (see DESIGN.md). */}
-            <img src="/art/adlaw.png" alt="" width="960" height="1200" fetchpriority="high" />
-          </motion.figure>
+          <Mural name="lapulapu" priority />
           <div className="pillar search">
             <label htmlFor="search" className="label">Search · <Ceb className="">Pangitaa</Ceb></label>
             <input id="search" type="search" placeholder="Title or author" value={query} onChange={e => setQuery(e.target.value)} />
