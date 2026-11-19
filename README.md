@@ -1,138 +1,119 @@
-# Sugilanon — stories worth sharing
+# Sugilanon Blog Platform — Final Exam
 
-Full frontend + two Express backend servers for the App Dev midterm. **Sugilanon** means “story” in Bisaya.
+ReactJS frontend → two ExpressJS servers → MariaDB (XAMPP).
 
-## Start here
+| Part | Folder | Port |
+|---|---|---|
+| Auth Server: register, login, refresh, logout | `auth-server/` | 4000 |
+| Blog API: posts with role-based access | `blog-server/` | 5000 |
+| React frontend (Vite) | `frontend/` | 5173 |
+| MariaDB database `blog_platform` | `database/schema.sql` | 3306 |
 
-From this folder:
+The Blog API checks JWTs itself using the shared `JWT_SECRET` in the root `.env`. It never calls the Auth Server.
+
+## Setup (first time)
+
+1. Open the **XAMPP Control Panel** and start **Apache** and **MySQL**.
+2. In this folder:
+
+   ```sh
+   npm run install:all   # installs backend and frontend packages
+   npm run setup         # creates .env with a random JWT secret and builds the tables
+   ```
+
+   You can also build the tables by hand: open phpMyAdmin (http://localhost/phpmyadmin), go to the **SQL** tab, and paste in `database/schema.sql`.
+3. If your XAMPP MySQL root user has a password, put it in `DB_PASSWORD` in `.env`.
+
+## Run
 
 ```sh
-bun install
-bun run setup
-bun run start
+npm run dev     # starts auth (4000), blog (5000) and React (5173) together
 ```
 
-Open **http://localhost:5000** (use this exact origin, not a file:// URL).
-Both servers run as separate processes:
-- **4000:** Auth Server — register, login, refresh, logout
-- **5000:** Blog API — public reading, protected writing, and static frontend
+Open **http://localhost:5173**. Ctrl+C stops everything.
 
-The supplied Windows `START-APP.cmd` in the parent folder also starts the app.
-Keep its terminal open. Ctrl+C stops both servers.
+You can also run each part in its own terminal: `npm run start:auth`, `npm run start:blog`, `npm run start:frontend`.
 
-For a populated presentation, open a second terminal in this folder and run:
+To fill the database with demo data while the servers are running:
 
 ```sh
-bun run seed
+npm run seed
 ```
 
-| Username | Role | Demo password |
+| Username | Role | Password (local demo only) |
 |---|---|---|
 | clara_reader | reader | StoryTime123! |
 | mika_author | author | StoryTime123! |
 | eli_author | author | StoryTime123! |
 | sam_admin | admin | StoryTime123! |
 
-These are optional, **local classroom credentials**, not production accounts. Seeding uses the real APIs. It adds missing sample titles without overwriting existing stories. It logs into these accounts, replacing old refresh tokens; sign in again afterward. Run seed once before rehearsal, not halfway through a live demo.
+## Database (schema)
 
-## Runtime note
+- **roles**: id, role (unique), created_at, updated_at, encoder_id. Seeded with reader, author and admin.
+- **users**: id, email (unique), username (unique), password_hash, role_id → roles.id, is_active, created_at, updated_at
+- **refresh_tokens**: id, user_id → users.id, token_hash (SHA-256, unique), expires_at, revoked_at, created_at
+- **posts**: id, author_id → users.id, title, content, created_at, updated_at
 
-Dependencies and scripts use **Bun 1.3.13**, managed with mise, as required by this workstation’s tooling policy. Backend source uses **Node.js APIs** (native `node:crypto`, `node:path`, `node:fs`, etc.), Express, jsonwebtoken and dotenv, with no Bun-specific APIs. The test runner alone uses `bun:test`.
+Every id and foreign key is a signed `INT`, so the FK signedness matches (see the schema note).
 
-The assignment explicitly names Node.js. For a professor who requires the **actual Node runtime** rather than Node-compatible Bun execution, the same two entry points are Node-compatible: `auth-server/server.js` and `blog-api/server.js`. Confirm that runtime expectation before presentation; do not claim that Bun itself is Node.js.
+## API
 
-## Test
+### Auth Server (http://localhost:4000)
 
-```sh
-bun run test
-bun run test:ui
-bun run test:collection
+| Method | Endpoint | Body | Success | Errors |
+|---|---|---|---|---|
+| POST | /register | username, email, password, role | 201 | 400, 409 |
+| POST | /login | username, password → `{ accessToken, refreshToken }` | 200 | 400, 401 |
+| POST | /refresh | refreshToken → `{ accessToken }` | 200 | 400, 401 |
+| POST | /logout | refreshToken (sets `revoked_at`) | 200 | 400 |
+
+- Access token: `{ id, username, role }`, expires in 15 minutes.
+- Refresh token: `{ id, type: "refresh" }`, expires in 7 days. Only its SHA-256 hash goes in `refresh_tokens`.
+- Login also sets the refresh token as an **httpOnly cookie** (cookie-parser). That way the React app never stores it in JavaScript. Postman can send it in the JSON body instead.
+- Passwords are hashed with a random salt and `scrypt` (node:crypto).
+- `/login` and `/register` are rate limited to 20 requests per 15 minutes (express-rate-limit).
+
+### Blog API (http://localhost:5000)
+
+| Method | Endpoint | Who | Success | Errors |
+|---|---|---|---|---|
+| GET | /api/posts | public | 200 | — |
+| GET | /api/posts/:id | public | 200 | 404 |
+| POST | /api/posts | author, admin | 201 | 400, 401, 403 |
+| PUT | /api/posts/:id | post owner or admin | 200 | 400, 401, 403, 404 |
+| DELETE | /api/posts/:id | admin | 200 | 401, 403, 404 |
+| GET | /api/me/posts | any logged-in user | 200 | 401 |
+
+- `middleware/authenticate.js`: reads `Authorization: Bearer <token>`, verifies it, sets `req.user`, and rejects refresh tokens (401). It is applied per route, because the GET routes are public.
+- `middleware/authorize.js`: `authorize(...roles)` returns 403 for any other role.
+- The ownership check (owner or admin) is in `postController.updatePost`.
+- `authorId` always comes from the token, never from the request body.
+
+All errors use the shape `{ "error": "message" }`. Both servers use Helmet security headers.
+
+## Folder structure
+
 ```
-
-- API suite: isolated ports 14000/15000, temporary storage; never modifies presentation records.
-- UI suite: ports 14001/15001 and Chrome debug port 19222; temporary browser profile.
-- Browser tests use installed Chrome or Edge in a standard Windows location, controlled over Chrome DevTools Protocol with native WebSocket. No browser-test cloud service is used.
-- UI artifacts are saved in `artifacts/`: desktop/mobile screenshots, architecture screenshot, JSON test summary.
-- `docs/TEST-RESULTS.md` records the verification actually performed.
-- `docs/Sugilanon.postman_collection.json` is importable into Postman. Run in order on your local demo servers. It creates separate test accounts/posts and uses no shared JWT secret.
-
-## Complete frontend
-
-- Public story feed, detail view, search and friendly empty/error states
-- Registration with role selection, login, logout
-- “My stories” for every signed-in role
-- Author publishing and own-post editing
-- Admin publishing, editing any post, deleting with a confirmation dialog
-- Account screen with manual token renewal, plus automatic refresh/retry
-- About screen with live health checks for both servers
-- Responsive mobile layout, form labels, keyboard focus, live status messages
-- User content escaped as text, never treated as HTML
-
-## Requirements map
-
-| Requirement | Implementation |
-|---|---|
-| Two Express servers | `auth-server/server.js`, `blog-api/server.js` |
-| Shared root .env using explicit dotenv path | `shared/config.js` |
-| Native crypto password hashing | `authController.js`: random salt + scrypt + timingSafeEqual |
-| Access JWT: id, username, role; 15 minutes | `accessToken()` in auth controller |
-| Refresh JWT: same secret, type refresh; 7 days | `login()` in auth controller |
-| Stored refresh token + revoked_at checks | `refresh()`, `logout()` |
-| Independent Blog verification | `authenticate.js`; no Auth HTTP calls |
-| Role middleware | `authorize.js` |
-| Ownership | `updatePost()`; owner or admin |
-| Admin-only deletion | `postRoutes.js`, DELETE route uses authorize('admin') |
-| Arrays + localStorage persistence | `shared/storage.js`, models |
-| Uniform errors | `{ "error": "message" }`, including bad JSON and unknown paths |
-| Distinct routes/controllers/middleware folders | Both server folders |
-| Full UI integration | `frontend/app.js` calls all ten required endpoints |
-
-The handout’s abbreviated post model is incomplete and inconsistent with its endpoint table. This implementation follows the endpoint contract and uses `id, authorId, authorName, title, content, created_at, updated_at`. It includes all fields required to read, edit, and check ownership.
-
-## Storage: two different meanings of localStorage
-
-Servers have no browser window. The `node-localstorage` package implements the localStorage API with files:
-
-- `.storage/users/users`: Auth user array
-- `.storage/posts/posts`: Blog post array
-
-Each process reads its array once at startup and saves after modifications. Separate folders mean the Blog server never reads the user store. Corrupt storage fails startup instead of silently deleting records.
-
-The browser uses its own localStorage for `sugilanon.session`. It stores only the access/refresh session pair. It is **not** the authoritative user/post database.
-
-Do not run two Auth instances against the same storage directory. This classroom persistence mechanism is not a database or a multi-writer solution.
-
-## Security boundaries you should explain honestly
-
-- Public GET routes require no token.
-- A valid access token is required on every protected route.
-- Refresh tokens are explicitly rejected by Blog even though the signature is valid.
-- Role checks and ownership checks happen on the backend. Hiding buttons is not security.
-- Create obtains authorId and authorName from the verified token, not request body.
-- Only title/content can be edited; ownership cannot be reassigned.
-- Passwords are salted scrypt hashes. Hashing is not reversible encryption.
-- Logout revokes the saved refresh token, **not an already-issued access token**. Blog is stateless and independent; access expires within 15 minutes.
-- One saved refresh token per user means one refresh session at a time. A new login replaces the old refresh token.
-- Registration permits choosing admin because the exam requires it; this is unsafe for production.
-- Browser localStorage tokens are vulnerable if XSS occurs. Text escaping and CSP help, but production should consider secure HttpOnly cookies and CSRF protections.
-- Local HTTP, no rate limiter, file-backed records, synchronous hashing and HS256 shared secret are classroom choices. Do not deploy this unchanged to the public internet.
-- Production improvements: HTTPS, restricted admin provisioning, rate limiting, async hashing, a database, protected token storage, key rotation and a defined revocation strategy.
-- Changing JWT_SECRET invalidates all existing tokens.
+blog-platform/
+├── .env / .env.example      shared by both servers
+├── database/schema.sql
+├── scripts/                 setup, dev (runs all three), seed
+├── auth-server/
+│   ├── server.js
+│   ├── db.js
+│   └── src/ routes/ controllers/
+├── blog-server/
+│   ├── server.js
+│   ├── db.js
+│   └── src/ routes/ controllers/ middleware/ (authenticate.js, authorize.js)
+└── frontend/                React + Vite
+    └── src/ AuthContext.jsx, App.jsx, pages/, components/
+```
 
 ## Troubleshooting
 
-- **Missing secret:** run `bun run setup`. Existing .env is deliberately never overwritten. Use a random secret of at least 32 characters, shared by both servers.
-- **Port already in use:** stop the old copy before starting a new one. Do not close unrelated services.
-- **Cannot connect:** open http://localhost:4000/health and http://localhost:5000/health. Keep both terminal processes running.
-- **CORS failure:** use http://localhost:5000. The default config intentionally allows that origin.
-- **Refresh rejected:** sign in again. The token may have expired, been revoked, or been replaced by another login.
-- **403:** you are signed in, but your role/ownership does not permit the action.
-- **Data remains after restart:** this is expected; persistence is required.
-- **Want a clean rehearsal:** stop servers and back up .storage before manually moving it aside. No destructive reset runs automatically.
-- **Runtime resolution issue:** run `mise doctor`. Versions belong in `.mise.toml`; do not edit PATH manually.
-
-## Submission
-
-The project is published on the **midterm-exam** branch of [edmcorpuz/APP-DEV](https://github.com/edmcorpuz/APP-DEV/tree/midterm-exam). Never add .env, .storage, node_modules or browser session tokens.
-
-The full-stack +3 is evaluated by your professor; implementation and tests do not guarantee a grade.
+- **`ECONNREFUSED 127.0.0.1:3306`**: MySQL isn't started in XAMPP.
+- **`Access denied for user 'root'`**: set `DB_PASSWORD` in `.env`.
+- **`/health` returns 503**: the server is running but can't reach MariaDB.
+- **CORS error in the browser**: open the app at http://localhost:5173 (that is `FRONTEND_ORIGIN`).
+- **Port in use**: another copy is already running. Stop it first.
