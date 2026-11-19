@@ -106,9 +106,13 @@ blog-platform/
 │   ├── server.js
 │   ├── db.js
 │   └── src/ routes/ controllers/ middleware/ (authenticate.js, authorize.js)
-└── frontend/                React + Vite
+└── frontend/                React + Vite + Motion
+    ├── art/weave.mjs        generates the masthead artwork (node frontend/art/weave.mjs)
+    ├── public/art/          woven-broadsheet.svg (used on the site) and .png
     └── src/ AuthContext.jsx, App.jsx, pages/, components/
 ```
+
+The visual direction (philosophy, colors, fonts, and the reason for each) is in `DESIGN.md`.
 
 ## Troubleshooting
 

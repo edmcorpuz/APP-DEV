@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext.jsx';
+import { Notice } from '../components/Story.jsx';
 
 export default function Login() {
   const { login } = useAuth();
@@ -32,7 +33,7 @@ export default function Login() {
         <p className="dek">Log in to see your stories, and to write if you're an author.</p>
       </div>
       <form className="form" onSubmit={handleSubmit}>
-        {state?.registered && <p className="notice" role="status">Account created. Log in with your new password.</p>}
+        {state?.registered && <Notice>Account created. Log in with your new password.</Notice>}
         <label>Username<input name="username" value={form.username} onChange={update} autoComplete="username" required /></label>
         <label>Password<input name="password" type="password" value={form.password} onChange={update} autoComplete="current-password" required /></label>
         {error && <p className="error-text" role="alert">{error}</p>}

@@ -59,7 +59,7 @@ export default function PostEditor() {
       <div className="bar">
         <span className="meta num">{words} {words === 1 ? 'word' : 'words'}{words > 0 && ` · ${readTime(form.content)}`}</span>
         <div className="actions">
-          <button type="button" className="button ghost" onClick={() => navigate(-1)}>Cancel</button>
+          <button type="button" className="button quiet" onClick={() => navigate(-1)}>Cancel</button>
           <button className="button primary" disabled={busy}>{busy ? 'Saving…' : editing ? 'Save changes' : 'Publish story'}</button>
         </div>
       </div>

@@ -46,7 +46,7 @@ export default function Layout() {
           <Link to="/" className="wordmark" viewTransition>Sugilanon</Link>
           <button
             type="button"
-            className="button ghost menu-button"
+            className="button quiet menu-button"
             aria-expanded={menuOpen}
             aria-controls="site-nav"
             onClick={() => setMenuOpen(open => !open)}
@@ -75,9 +75,11 @@ export default function Layout() {
       <main className="wrap">
         <Outlet />
       </main>
-      <footer className="wrap site-footer">
-        <span>Sugilanon. Bisaya for story.</span>
-        <span>App Dev final exam project</span>
+      <footer className="site-footer">
+        <div className="wrap">
+          <span className="big">Sugilanon</span>
+          <span>Bisaya for story. App Dev final exam project.</span>
+        </div>
       </footer>
     </>
   );
