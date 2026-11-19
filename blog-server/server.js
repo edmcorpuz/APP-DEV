@@ -24,6 +24,10 @@ app.use('/api', postRoutes);
 app.use((req, res) => res.status(404).json({ error: 'That endpoint does not exist.' }));
 app.use((error, req, res, next) => {
   if (error.type === 'entity.parse.failed') return res.status(400).json({ error: 'Please send valid JSON.' });
+  if (error.code === 'ECONNREFUSED') {
+    console.error('Cannot reach MariaDB. Start MySQL in the XAMPP Control Panel.');
+    return res.status(503).json({ error: 'The database is offline. Start MySQL in XAMPP.' });
+  }
   console.error(error);
   res.status(500).json({ error: 'Something went wrong on the server. Please try again.' });
 });
