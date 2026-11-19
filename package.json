@@ -11,7 +11,8 @@
     "start:frontend": "npm --prefix frontend run dev",
     "dev": "node scripts/dev.js",
     "seed": "node scripts/seed.js",
-    "install:all": "npm install && npm --prefix frontend install"
+    "install:all": "npm install && npm --prefix frontend install",
+    "deploy:pages": "node scripts/deploy-pages.js"
   },
   "dependencies": {
     "cookie-parser": "^1.4.7",
