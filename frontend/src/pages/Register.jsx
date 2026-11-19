@@ -24,7 +24,7 @@ export default function Register() {
     setError('');
     try {
       await register({ ...form, username: form.username.trim(), email: form.email.trim() });
-      navigate('/login', { state: { registered: true, username: form.username.trim() }, viewTransition: true });
+      navigate('/login', { state: { registered: true, username: form.username.trim() } });
     } catch (err) {
       setError(err.message);
       setBusy(false);
@@ -61,7 +61,7 @@ export default function Register() {
         </fieldset>
         {error && <p className="error-text" role="alert">{error}</p>}
         <div><button className="button primary" disabled={busy}>{busy ? 'Creating account…' : 'Create account'}</button></div>
-        <p className="footnote">Already have an account? <Link to="/login" viewTransition>Log in</Link></p>
+        <p className="footnote">Already have an account? <Link to="/login">Log in</Link></p>
       </form>
     </div>
   );

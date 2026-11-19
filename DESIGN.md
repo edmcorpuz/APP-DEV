@@ -5,7 +5,7 @@ Philosophy written with the canvas-design skill. Type pairing from the ui-ux-pro
 typography search ("Art Deco": Poiret One + Didact Gothic), extended with Josefin Sans so
 headlines stay readable. Colors chosen for the brief and checked against WCAG AA.
 
-Dial: ENERGY 2 / RHYTHM 2 / MOTION 2
+Dial: ENERGY 2 / RHYTHM 2 / MOTION 3 for the living mural, 2 everywhere else
 
 ## Movement: Adlaw Deco
 
@@ -80,19 +80,29 @@ original stylizations and copy no statue or painting.
   with four warriors (spears, kalasag shields) while Magellan's soldiers in morion helmets wade
   back to their longboat and two ships with red saltire sails wait beyond the reef.
 
-### Motion (MOTION dial 2, every piece has a job)
+### Motion (MOTION dial 3 for the mural, 2 elsewhere; every piece has a job)
 
-- **Home mural, on hover or keyboard focus:** the rays turn, alternate wave rows drift in
-  opposite directions, the vintas bob, and Lapu-Lapu raises his kampilan: the clasped sword lets
-  go first (anticipation), then the arm swings up from the shoulder with a small overshoot
-  (follow-through). It tells you the mural is alive and clickable. It stops when you leave.
-- **Opening the mural:** the arch morphs into the panorama through a shared view-transition name
-  (`mural-hero`), so you see where you went. Going back morphs it home again.
-- **Panorama entrance, once:** the sun's rays turn into place, the ships sail in, the soldiers
-  fall back, the warriors rise in turn, then Lapu-Lapu. Afterwards only the sea, boats and rays
-  keep moving, with a Pause motion button.
-- With `prefers-reduced-motion: reduce`, nothing animates: the hover simply shows the raised
-  sword, and the panorama appears complete (the pause button is hidden as there is nothing to pause).
+The home arch and the story banner show one living scene (`src/art/world.svg`, placed by
+`MuralStage.jsx`). It never reloads between the two pages, so opening the story is one
+continuous movement rather than a fade.
+
+- **Pointing at the home mural (or keyboard focus):** the layers lean with the pointer by depth
+  (parallax), the rays turn, the sea drifts, the vintas bob, the palms sway, his halo pulses, his
+  headcloth flutters and Lapu-Lapu raises his kampilan: the clasped blade lets go first
+  (anticipation), then the arm swings up with a small overshoot (follow-through). It stops when
+  you leave, so nothing on the home page moves on its own.
+- **Opening the mural:** the frame grows from the arch into the banner while the camera pulls back
+  from Lapu-Lapu to the whole shore of Mactan. On the way the sun rises, the Spanish ships sail
+  in, the vintas drift out to sea, Magellan's soldiers fall back to their boats, the warriors rise
+  one by one and his sword goes up as the camera settles. Going back reverses all of it.
+- **Idle life in the banner:** the sea, boats, palms, warriors (shifting their weight) and
+  Lapu-Lapu (breathing, headcloth in the wind) keep moving, with a Pause motion button.
+- **Music:** "Gubat sa Baybayon", an original war-drum piece generated live in the browser
+  (agung and kulintang gongs, dabakan drum, babendil timekeeper, after Mindanao gong ensembles).
+  It starts only when you open the mural (browsers allow sound only after a click), fades out when
+  you leave the story, and has a Play/Mute button that remembers your choice.
+- With `prefers-reduced-motion: reduce`, nothing animates: the scene jumps straight to each state
+  and the pause button is hidden as there is nothing to pause.
 
 ## Texture
 

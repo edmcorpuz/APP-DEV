@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate, useOutlet } from 'react-router-dom';
+import { AnimatePresence, motion } from 'motion/react';
 import { useAuth } from '../AuthContext.jsx';
 import { Ceb, Sunburst } from './Story.jsx';
+import MuralStage from './MuralStage.jsx';
+import { stopMusic } from '../audio/warDrums.js';
 
 const systemTheme = () => (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 
@@ -23,12 +26,17 @@ function ThemeToggle() {
 export default function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const { pathname } = location;
+  const outlet = useOutlet();
   const [menuOpen, setMenuOpen] = useState(false);
   const canWrite = user && ['author', 'admin'].includes(user.role);
 
-  // A new page starts at the top (and the menu closes).
-  useEffect(() => { setMenuOpen(false); window.scrollTo(0, 0); }, [pathname]);
+  useEffect(() => setMenuOpen(false), [pathname]);
+  // The war drums belong to the story; they fade out anywhere else.
+  useEffect(() => { if (pathname !== '/sugilanon/lapu-lapu') stopMusic(); }, [pathname]);
+  // A new page starts at the top once the old one has left; smoothly while the mural morphs.
+  const toTop = () => window.scrollTo({ top: 0, behavior: location.state?.morph ? 'smooth' : 'auto' });
   useEffect(() => {
     if (!menuOpen) return;
     const onKey = event => event.key === 'Escape' && setMenuOpen(false);
@@ -42,10 +50,10 @@ export default function Layout() {
   }
 
   return (
-    <>
+    <div className="app">
       <header className="site-header">
         <div className="wrap header-row">
-          <Link to="/" className="wordmark" viewTransition><Sunburst className="" />Sugilanon</Link>
+          <Link to="/" className="wordmark"><Sunburst className="" />Sugilanon</Link>
           <button
             type="button"
             className="button quiet menu-button"
@@ -56,9 +64,9 @@ export default function Layout() {
             {menuOpen ? 'Close' : 'Menu'}
           </button>
           <nav id="site-nav" className={`site-nav${menuOpen ? ' open' : ''}`} aria-label="Main">
-            <NavLink to="/" end viewTransition>Stories</NavLink>
-            {user && <NavLink to="/me" viewTransition>My stories</NavLink>}
-            {canWrite && <NavLink to="/new" viewTransition>Write a story</NavLink>}
+            <NavLink to="/" end>Stories</NavLink>
+            {user && <NavLink to="/me">My stories</NavLink>}
+            {canWrite && <NavLink to="/new">Write a story</NavLink>}
             <ThemeToggle />
             {user ? (
               <>
@@ -67,16 +75,22 @@ export default function Layout() {
               </>
             ) : (
               <>
-                <NavLink to="/login" viewTransition>Log in</NavLink>
-                <NavLink to="/register" viewTransition>Create account</NavLink>
+                <NavLink to="/login">Log in</NavLink>
+                <NavLink to="/register">Create account</NavLink>
               </>
             )}
           </nav>
         </div>
       </header>
       <main className="wrap">
-        <Outlet />
+        {/* Pages cross-fade (opacity only, so nothing shifts under the mural while it measures). */}
+        <AnimatePresence mode="wait" initial={false} onExitComplete={toTop}>
+          <motion.div key={pathname} initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { duration: 0.45 } }} exit={{ opacity: 0, transition: { duration: 0.22 } }}>
+            {outlet}
+          </motion.div>
+        </AnimatePresence>
       </main>
+      <MuralStage />
       <footer className="site-footer">
         <div className="waves" aria-hidden="true" />
         <div className="wrap">
@@ -86,6 +100,6 @@ export default function Layout() {
           <span className="small">Sugilanon, Bisaya for story. App Dev final exam project.</span>
         </div>
       </footer>
-    </>
+    </div>
   );
 }
