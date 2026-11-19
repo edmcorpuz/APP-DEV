@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../AuthContext.jsx';
-import { Byline, formatDate, titleTransition } from '../components/Story.jsx';
+import { Byline, Notice, formatDate, titleTransition } from '../components/Story.jsx';
 
 export default function PostView() {
   const { id } = useParams();
@@ -48,7 +48,7 @@ export default function PostView() {
   return (
     <article className="article">
       <Link to="/" className="back" viewTransition>Back to all stories</Link>
-      {state?.notice && <p className="notice" role="status">{state.notice}</p>}
+      {state?.notice && <div><Notice>{state.notice}</Notice></div>}
       <h1 style={titleTransition(post.id)}>{post.title}</h1>
       <div className="byline">
         <Byline post={post} />
