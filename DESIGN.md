@@ -76,6 +76,24 @@ original stylizations and copy no statue or painting.
 - The vinta stripes (red, yellow, green, blue) appear only inside the art; the interface palette
   stays sea, ivory and gold.
 
+- **The Battle of Mactan** (panorama, story page). Lapu-Lapu raises his kampilan on the shore
+  with four warriors (spears, kalasag shields) while Magellan's soldiers in morion helmets wade
+  back to their longboat and two ships with red saltire sails wait beyond the reef.
+
+### Motion (MOTION dial 2, every piece has a job)
+
+- **Home mural, on hover or keyboard focus:** the rays turn, alternate wave rows drift in
+  opposite directions, the vintas bob, and Lapu-Lapu raises his kampilan: the clasped sword lets
+  go first (anticipation), then the arm swings up from the shoulder with a small overshoot
+  (follow-through). It tells you the mural is alive and clickable. It stops when you leave.
+- **Opening the mural:** the arch morphs into the panorama through a shared view-transition name
+  (`mural-hero`), so you see where you went. Going back morphs it home again.
+- **Panorama entrance, once:** the sun's rays turn into place, the ships sail in, the soldiers
+  fall back, the warriors rise in turn, then Lapu-Lapu. Afterwards only the sea, boats and rays
+  keep moving, with a Pause motion button.
+- With `prefers-reduced-motion: reduce`, nothing animates: the hover simply shows the raised
+  sword, and the panorama appears complete (the pause button is hidden as there is nothing to pause).
+
 ## Texture
 
 A faint abaca/capiz paper grain and a T'nalak diamond lattice cover the page, and a sunburst

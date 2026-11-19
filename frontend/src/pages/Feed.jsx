@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useAuth } from '../AuthContext.jsx';
+import { loadLapuLapu } from '../lapulapuPage.js';
 import { Ceb, LeadStory, Mural, Notice, SectionHead, StoryIndex, StoriesSkeleton } from '../components/Story.jsx';
 
 const today = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
@@ -36,6 +37,11 @@ export default function Feed() {
     api('/posts').then(setPosts).catch(err => setError(err.message));
   }, [api]);
   useEffect(load, [load]);
+  // Fetch the Lapu-Lapu story chunk once the page is idle, so opening the mural is instant.
+  useEffect(() => {
+    const id = setTimeout(loadLapuLapu, 1500);
+    return () => clearTimeout(id);
+  }, []);
 
   const q = query.trim().toLowerCase();
   const results = (posts || []).filter(post =>

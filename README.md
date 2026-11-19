@@ -107,8 +107,10 @@ blog-platform/
 │   ├── db.js
 │   └── src/ routes/ controllers/ middleware/ (authenticate.js, authorize.js)
 └── frontend/                React + Vite + Motion
-    ├── art/murals.mjs       generates the Lapu-Lapu and Sultan Kudarat murals (node frontend/art/murals.mjs)
-    ├── public/art/          lapulapu.png, kudarat.png (used on the site) and their .svg sources
+    ├── art/murals.mjs       generates all murals (node frontend/art/murals.mjs)
+    ├── src/art/             layered SVGs the site animates (lapulapu, mactan)
+    ├── public/art/          PNGs: kudarat (login/sign-up), lapulapu and mactan (share images)
+    └── src/pages/LapuLapu.jsx  the "Lapu-Lapu of Mactan" feature at /sugilanon/lapu-lapu
     └── src/ AuthContext.jsx, App.jsx, pages/, components/
 ```
 
