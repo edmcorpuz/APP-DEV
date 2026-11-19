@@ -1,26 +1,26 @@
 {
-  "name": "sugilanon-blog-platform",
-  "version": "1.0.0",
+  "name": "blog-platform",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
+  "description": "Final exam: two Express servers + MariaDB (XAMPP) + React frontend",
   "scripts": {
-    "setup": "bun scripts/setup.js",
-    "start": "bun scripts/start.js",
-    "start:auth": "bun auth-server/server.js",
-    "start:blog": "bun blog-api/server.js",
-    "test": "bun test tests/api.test.js",
-    "test:ui": "bun scripts/test-ui.js",
-    "test:collection": "bun scripts/test-collection.js",
-    "seed": "bun scripts/seed-demo.js"
+    "setup": "node scripts/setup.js",
+    "start:auth": "node auth-server/server.js",
+    "start:blog": "node blog-server/server.js",
+    "start:frontend": "npm --prefix frontend run dev",
+    "dev": "node scripts/dev.js",
+    "seed": "node scripts/seed.js",
+    "install:all": "npm install && npm --prefix frontend install"
   },
   "dependencies": {
-    "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2",
-    "dotenv": "^17.2.3",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
-    "node-localstorage": "^3.0.5"
-  },
-  "devDependencies": {
-    "pdfkit": "^0.17.2"
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.4.1",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.11.0"
   }
 }
