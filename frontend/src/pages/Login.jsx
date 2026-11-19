@@ -5,8 +5,8 @@ import { useAuth } from '../AuthContext.jsx';
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [form, setForm] = useState({ username: '', password: '' });
+  const { state } = useLocation();
+  const [form, setForm] = useState({ username: state?.username || '', password: '' });
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -17,24 +17,28 @@ export default function Login() {
     setBusy(true);
     setError('');
     try {
-      await login(form.username, form.password);
-      navigate('/');
+      await login(form.username.trim(), form.password);
+      navigate('/', { viewTransition: true });
     } catch (err) {
       setError(err.message);
-    } finally {
       setBusy(false);
     }
   }
 
   return (
-    <form className="form-card" onSubmit={handleSubmit}>
-      <h1>Log in</h1>
-      {location.state?.registered && <p className="success">Account created. Log in to continue.</p>}
-      <label>Username<input name="username" value={form.username} onChange={update} autoComplete="username" required /></label>
-      <label>Password<input name="password" type="password" value={form.password} onChange={update} autoComplete="current-password" required /></label>
-      {error && <p className="error">{error}</p>}
-      <button className="button" disabled={busy}>{busy ? 'Logging in…' : 'Log in'}</button>
-      <p className="muted">No account? <Link to="/register">Sign up</Link></p>
-    </form>
+    <div className="split">
+      <div>
+        <h1>Welcome back.</h1>
+        <p className="dek">Log in to see your stories, and to write if you're an author.</p>
+      </div>
+      <form className="form" onSubmit={handleSubmit}>
+        {state?.registered && <p className="notice" role="status">Account created. Log in with your new password.</p>}
+        <label>Username<input name="username" value={form.username} onChange={update} autoComplete="username" required /></label>
+        <label>Password<input name="password" type="password" value={form.password} onChange={update} autoComplete="current-password" required /></label>
+        {error && <p className="error-text" role="alert">{error}</p>}
+        <div><button className="button primary" disabled={busy}>{busy ? 'Logging in…' : 'Log in'}</button></div>
+        <p className="footnote">New here? <Link to="/register" viewTransition>Create an account</Link></p>
+      </form>
+    </div>
   );
 }

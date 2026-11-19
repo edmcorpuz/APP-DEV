@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../AuthContext.jsx';
+import { readTime } from '../components/Story.jsx';
 
 // Used for both /new (POST /api/posts) and /posts/:id/edit (PUT /api/posts/:id).
 export default function PostEditor() {
@@ -20,7 +21,7 @@ export default function PostEditor() {
     api(`/posts/${id}`)
       .then(post => {
         if (post.authorId !== userId && role !== 'admin') {
-          setError('Only the post owner or an admin can edit this post.');
+          setError('Only the post owner or an admin can edit this story.');
         }
         setForm({ title: post.title, content: post.content });
       })
@@ -29,6 +30,7 @@ export default function PostEditor() {
   }, [api, editing, id, userId, role]);
 
   const update = event => setForm({ ...form, [event.target.name]: event.target.value });
+  const words = form.content.trim() ? form.content.trim().split(/\s+/).length : 0;
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -39,25 +41,27 @@ export default function PostEditor() {
         method: editing ? 'PUT' : 'POST',
         body: JSON.stringify(form),
       });
-      navigate(`/posts/${saved.id}`);
+      navigate(`/posts/${saved.id}`, { state: { notice: editing ? 'Changes saved.' : 'Published. It is now on the front page.' } });
     } catch (err) {
       setError(err.message);
-    } finally {
       setBusy(false);
     }
   }
 
-  if (loading) return <p className="muted">Loading…</p>;
+  if (loading) return <div className="skeleton editor" aria-busy="true"><span className="sr-only">Loading story…</span><span className="big" aria-hidden="true" /><span aria-hidden="true" /></div>;
 
   return (
-    <form className="form-card wide" onSubmit={handleSubmit}>
-      <h1>{editing ? 'Edit post' : 'Write a new post'}</h1>
-      <label>Title<input name="title" value={form.title} onChange={update} maxLength={255} required /></label>
-      <label>Content<textarea name="content" rows={12} value={form.content} onChange={update} required /></label>
-      {error && <p className="error">{error}</p>}
-      <div className="actions">
-        <button className="button" disabled={busy}>{busy ? 'Saving…' : editing ? 'Save changes' : 'Publish'}</button>
-        <button type="button" className="button ghost" onClick={() => navigate(-1)}>Cancel</button>
+    <form className="form editor" onSubmit={handleSubmit}>
+      <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)', fontWeight: 700 }}>{editing ? 'Edit story' : 'New story'}</h1>
+      <label>Headline<input name="title" className="title-field" value={form.title} onChange={update} maxLength={255} required /></label>
+      <label>Story<textarea name="content" className="body-field" rows={14} value={form.content} onChange={update} required /></label>
+      {error && <p className="error-text" role="alert">{error}</p>}
+      <div className="bar">
+        <span className="meta num">{words} {words === 1 ? 'word' : 'words'}{words > 0 && ` · ${readTime(form.content)}`}</span>
+        <div className="actions">
+          <button type="button" className="button ghost" onClick={() => navigate(-1)}>Cancel</button>
+          <button className="button primary" disabled={busy}>{busy ? 'Saving…' : editing ? 'Save changes' : 'Publish story'}</button>
+        </div>
       </div>
     </form>
   );
