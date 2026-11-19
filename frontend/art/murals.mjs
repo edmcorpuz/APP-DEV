@@ -183,8 +183,10 @@ function warrior(k, { pose = 'clasp', weapon = 'kampilan', shield = false, cloth
   k.poly(k.arcPts(CX, 346, 40, 40, Math.PI, 2 * Math.PI, 32), C.ink);
   if (putong) {
     k.poly([[440, 326], [520, 326], [520, 342], [440, 342]], C.red);
-    k.poly([[516, 330], [568, 352], [562, 366], [512, 342]], C.red);
-    k.poly([[512, 340], [552, 380], [540, 386], [508, 346]], C.redDark);
+    k.group('w-putong', () => { // the headcloth tail: flutters in the sea wind
+      k.poly([[516, 330], [568, 352], [562, 366], [512, 342]], C.red);
+      k.poly([[512, 340], [552, 380], [540, 386], [508, 346]], C.redDark);
+    });
   }
 
   // Clasp pose, part 2: forked pommel, hands, guard and the kampilan, point-down.
@@ -315,6 +317,82 @@ function mactan() {
   return k;
 }
 
+// ---------- The living world (home arch and story banner share it) ----------
+// One 1600 x 900 scene. The site shows it through a camera: a tight crop on Lapu-Lapu inside the
+// home arch, the whole shore in the story banner. Groups named w-* carry two states in CSS
+// (.is-arch / .is-panorama) so every element travels to its place when the camera pulls back.
+// Groups drawn around (0, 0) are positioned by CSS (the rays).
+const HERO = { x: 1100, y: 822, s: 0.62 };
+const heroPoint = (lx, ly) => [HERO.x + (lx - CX) * HERO.s, HERO.y + (ly - 978) * HERO.s];
+
+function palm(k, x, y, h, lean) {
+  k.group('w-palm', () => {
+    const pts = Array.from({ length: 9 }, (_, i) => {
+      const t = i / 8;
+      return [x + lean * Math.sin((t * Math.PI) / 2) * h * 0.28, y - t * h];
+    });
+    for (let i = 0; i < 8; i++) {
+      const [x1, y1] = pts[i], [x2, y2] = pts[i + 1];
+      k.band(x1, y1, x2, y2 - 2, 14 - i * 0.8, i % 2 ? '#4a3220' : '#3a2416');
+    }
+    const [cx, cy] = pts[8];
+    const leaf = (a, L, c) => {
+      const dx = Math.cos(a), dy = Math.sin(a), px = -dy, py = dx;
+      const mid = [cx + dx * L * 0.5 + px * 6, cy + dy * L * 0.5 - L * 0.08];
+      const tip = [cx + dx * L, cy + dy * L + L * 0.28];
+      k.poly([[cx + px * 4, cy + py * 4], [mid[0] + px * 12, mid[1] + py * 12], tip, [mid[0] - px * 9, mid[1] - py * 9], [cx - px * 4, cy - py * 4]], c);
+      k.band(cx, cy, mid[0], mid[1], 2, C.goldDeep);
+    };
+    [[-2.9, 96, '#21523a'], [-2.4, 110, '#2f6a4a'], [-1.9, 84, '#21523a'], [-1.25, 86, '#2f6a4a'], [-0.7, 108, '#21523a'], [-0.2, 98, '#2f6a4a'], [0.35, 80, '#21523a'], [2.8, 76, '#2f6a4a']]
+      .forEach(([a, L, c]) => leaf(a, L, c));
+    [[-6, 8], [6, 9], [0, 14]].forEach(([ox, oy]) => k.ellipse(cx + ox, cy + oy, 7, 7, '#5a3b1e'));
+  });
+}
+
+function world() {
+  const k = canvas(1600, 900);
+  const HZ = 600;
+  sky(k, HZ);
+  // Across the strait: the hills of Cebu, two ranges deep.
+  k.poly([[-40, 600], [-40, 548], [80, 520], [190, 540], [300, 500], [420, 534], [560, 512], [700, 548], [820, 556], [880, 600]], '#0f2725');
+  k.poly([[-40, 600], [-40, 572], [120, 556], [260, 566], [380, 548], [520, 566], [660, 574], [780, 600]], '#132f2c');
+  k.group('w-rays', () => k.group('w-par w-par-far', () => k.group('w-spin', () => sunburst(k, 0, 0, 120, 1500, 44, 34, 12))));
+  k.group('w-sun', () => [[150, C.gold], [138, SEA[3]], [124, C.gold], [110, C.ivory], [100, C.gold]].forEach(([r, c]) =>
+    k.poly([...k.arcPts(1100, HZ, r, r, Math.PI, 2 * Math.PI, 48), [1100 + r, HZ]], c)));
+  [[330, 6, 0.72, 'w-ship-1'], [640, 14, 0.5, 'w-ship-2']].forEach(([x, dy, s, cls]) =>
+    k.group(`w-ship ${cls}`, () => k.group('w-bob', () => k.place({ x, y: HZ + dy, ox: 0, oy: 0, s }, () => galleon(k)))));
+  k.group('w-par w-par-mid', () => waves(k, HZ, 790, 30));
+  k.group('w-vinta w-vinta-l', () => k.group('w-bob', () => k.place({ x: 950, y: 768, ox: 180, oy: 944, s: 0.45 }, () => vinta(k, 70))));
+  k.group('w-vinta w-vinta-r', () => k.group('w-bob', () => k.place({ x: 1250, y: 768, ox: 780, oy: 944, s: 0.45 }, () => vinta(k, 70, true))));
+  k.group('w-retreat', () => {
+    k.group('w-bob', () => k.place({ x: 250, y: 742, ox: 0, oy: 0, s: 1 }, () => longboat(k)));
+    [[170, 0.5], [300, 0.56], [400, 0.52], [500, 0.6]].forEach(([x, s]) =>
+      k.group('w-wade', () => k.place({ x, y: 800, ox: 0, oy: 0, s }, () => soldier(k))));
+  });
+  k.group('w-surf', () => waves(k, 748, 832, 22));
+  // The island of Mactan: a low shore of sand and reef stone, coconut palms along it.
+  k.poly([[620, 830], [700, 792], [1020, 780], [1600, 752], [1600, 830]], C.sand);
+  for (let i = 0; i < 4; i++) k.poly([[700 + i * 40, 800 - i * 2], [1600, 760 + i * 14], [1600, 764 + i * 14], [704 + i * 40, 804 - i * 2]], C.sandDark);
+  palm(k, 1560, 790, 300, -1);
+  palm(k, 1500, 800, 250, -0.6);
+  palm(k, 1335, 792, 230, 0.7);
+  palm(k, 690, 806, 210, -0.9);
+  [[760, 812, 34, 16], [1480, 800, 46, 20], [1560, 812, 40, 16]].forEach(([x, y, rx, ry]) => k.ellipse(x, y, rx, ry, '#1d2b29'));
+  [[860, 0.44, 'w1', C.ink], [1300, 0.46, 'w2', C.red], [1430, 0.42, 'w3', C.ink], [740, 0.4, 'w4', C.red]].forEach(([x, s, cls, cloth]) =>
+    k.group(`w-warrior ${cls}`, () => k.group('w-sway', () => k.place({ x, y: 812, ox: CX, oy: 978, s }, () =>
+      warrior(k, { pose: 'raised', weapon: 'spear', shield: true, cloth, putong: cls === 'w2' })))));
+  k.group('w-hero', () => k.group('w-par w-par-near', () => {
+    const [hx, hy] = heroPoint(CX, 352);
+    k.group('w-halo', () => [[78, C.gold], [70, SEA[3]], [62, C.gold], [56, C.ivory]].forEach(([r, c]) => k.ellipse(hx, hy, r, r, c)));
+    k.place({ x: HERO.x, y: HERO.y, ox: CX, oy: 978, s: HERO.s }, () => {
+      plinth(k, 976);
+      k.group('w-breathe', () => warrior(k, { pose: 'both' }));
+    });
+  }));
+  tnalak(k, 830, 70);
+  return k;
+}
+
 // ---------- Sultan Kudarat (login and sign-up pages) ----------
 function kudarat() {
   const k = canvas();
@@ -436,7 +514,8 @@ function toPng(k) {
 const pub = new URL('../public/art/', import.meta.url), src = new URL('../src/art/', import.meta.url);
 mkdirSync(pub, { recursive: true });
 mkdirSync(src, { recursive: true });
-const jobs = { lapulapu: [lapulapu, true, true], mactan: [mactan, true, true], kudarat: [kudarat, false, true] };
+// world.svg is the living scene the site animates; the PNGs are share images and the login art.
+const jobs = { world: [world, true, false], lapulapu: [lapulapu, false, true], mactan: [mactan, false, true], kudarat: [kudarat, false, true] };
 for (const [name, [draw, svg, png]] of Object.entries(jobs)) {
   if (process.argv[2] && process.argv[2] !== name) continue;
   const k = draw();

@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useAuth } from '../AuthContext.jsx';
-import { loadLapuLapu } from '../lapulapuPage.js';
 import { Ceb, LeadStory, Mural, Notice, SectionHead, StoryIndex, StoriesSkeleton } from '../components/Story.jsx';
 
 const today = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
@@ -37,11 +36,6 @@ export default function Feed() {
     api('/posts').then(setPosts).catch(err => setError(err.message));
   }, [api]);
   useEffect(load, [load]);
-  // Fetch the Lapu-Lapu story chunk once the page is idle, so opening the mural is instant.
-  useEffect(() => {
-    const id = setTimeout(loadLapuLapu, 1500);
-    return () => clearTimeout(id);
-  }, []);
 
   const q = query.trim().toLowerCase();
   const results = (posts || []).filter(post =>
@@ -64,7 +58,7 @@ export default function Feed() {
             <span className="count">{posts ? posts.length : '·'}</span>
             <span className="meta">{posts?.length === 1 ? 'story published' : 'stories published'}</span>
           </div>
-          <Mural name="lapulapu" priority />
+          <Mural name="lapulapu" />
           <div className="pillar search">
             <label htmlFor="search" className="label">Search · <Ceb className="">Pangitaa</Ceb></label>
             <input id="search" type="search" placeholder="Title or author" value={query} onChange={e => setQuery(e.target.value)} />
@@ -89,7 +83,7 @@ export default function Feed() {
         <div className="state">
           <h2>No stories yet.</h2>
           <p>{canWrite ? 'The front page is yours. Publish the first story.' : 'Authors publish here. Create an author account to write the first one.'}</p>
-          <Link to={canWrite ? '/new' : '/register'} className="button primary" viewTransition>
+          <Link to={canWrite ? '/new' : '/register'} className="button primary">
             {canWrite ? 'Write the first story' : 'Create an author account'}
           </Link>
         </div>

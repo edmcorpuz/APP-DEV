@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
-import lapulapuSvg from '../art/lapulapu.svg?raw';
-import { loadLapuLapu } from '../lapulapuPage.js';
+import { useMuralSlot } from '../mural/store.js';
 
 export const formatDate = value => new Date(value).toLocaleDateString(undefined, {
   year: 'numeric', month: 'short', day: 'numeric',
@@ -10,9 +9,6 @@ export const formatDate = value => new Date(value).toLocaleDateString(undefined,
 // Real numbers only: both are computed from the post itself.
 export const readTime = text => `${Math.max(1, Math.round(text.trim().split(/\s+/).length / 200))} min read`;
 export const excerpt = (text, max) => (text.length > max ? `${text.slice(0, max).trim()}…` : text);
-
-// The headline shares a view-transition name with the article <h1>, so it glides into place.
-export const titleTransition = id => ({ viewTransitionName: `story-title-${id}` });
 
 // Bisaya (Cebuano) words, marked so screen readers switch pronunciation.
 export const Ceb = ({ children, className = 'ceb' }) => <span lang="ceb" className={className}>{children}</span>;
@@ -44,19 +40,18 @@ const MURALS = {
   },
 };
 
-// Inline SVG (our own generated file) so CSS can animate its layers; decorative, so hidden from
-// screen readers while the link carries the accessible name.
-export const MuralArt = ({ svg }) => <span className="mural-art" aria-hidden="true" dangerouslySetInnerHTML={{ __html: svg }} />;
+// A sized, empty place in the page where the living mural (MuralStage) settles.
+export function MuralSlot({ kind, className }) {
+  const ref = useMuralSlot(kind);
+  return <div ref={ref} className={className} aria-hidden="true" />;
+}
 
 export function Mural({ name, priority = false }) {
   const { title, caption } = MURALS[name];
   if (name === 'lapulapu') {
     return (
       <figure className="mural">
-        <Link to="/sugilanon/lapu-lapu" viewTransition className="arch mural-link" style={{ viewTransitionName: 'mural-hero' }}
-          aria-label={`${title}: open his story`} onPointerEnter={loadLapuLapu} onFocus={loadLapuLapu}>
-          <MuralArt svg={lapulapuSvg} />
-        </Link>
+        <MuralSlot kind="arch" className="arch arch-slot" />
         <figcaption>
           <strong>{title}</strong>{caption}
           <span className="hint">Hover the mural to wake it. Open it to read his <Ceb className="">sugilanon</Ceb>.</span>
@@ -113,8 +108,8 @@ export function LeadStory({ post }) {
     <motion.article className="lead" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}>
       <Sunburst />
       <span className="tag label"><Ceb className="">Bag-o</Ceb><span aria-hidden="true">·</span>Latest</span>
-      <h2 style={titleTransition(post.id)}>
-        <Link to={`/posts/${post.id}`} viewTransition>{post.title}</Link>
+      <h2>
+        <Link to={`/posts/${post.id}`}>{post.title}</Link>
       </h2>
       <p className="excerpt">{excerpt(post.content, 240)}</p>
       <p className="meta">By {post.authorName} · {readTime(post.content)}</p>
@@ -130,8 +125,8 @@ export function StoryIndex({ posts, start = 1, showExcerpt = false }) {
         {posts.map((post, i) => (
           <motion.li key={post.id} className="row" layout variants={row} exit={{ opacity: 0, transition: { duration: 0.15 } }}>
             <span className="num" aria-hidden="true">{String(start + i).padStart(2, '0')}</span>
-            <h3 style={titleTransition(post.id)}>
-              <Link to={`/posts/${post.id}`} viewTransition>{post.title}</Link>
+            <h3>
+              <Link to={`/posts/${post.id}`}>{post.title}</Link>
             </h3>
             <Byline post={post} />
             {showExcerpt && <p className="excerpt">{excerpt(post.content, 160)}</p>}

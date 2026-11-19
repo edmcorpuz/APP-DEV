@@ -1,29 +1,33 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../AuthContext.jsx';
-import { Ceb, MuralArt, Sunburst } from '../components/Story.jsx';
-import mactanSvg from '../art/mactan.svg?raw';
+import { Ceb, MuralSlot, Sunburst } from '../components/Story.jsx';
+import { setPaused, useMural } from '../mural/store.js';
+import { startMusic, stopMusic, useMusicPlaying } from '../audio/warDrums.js';
 
 // A fixed feature page. Every historical statement here is a well-documented fact; the
 // numbers come from Antonio Pigafetta, who sailed with the expedition and wrote it down.
 export default function LapuLapu() {
   const { user } = useAuth();
-  const [paused, setPaused] = useState(false);
+  const { paused } = useMural();
+  const music = useMusicPlaying();
   const canWrite = user && ['author', 'admin'].includes(user.role);
+  useEffect(() => () => setPaused(false), []); // motion resumes next time
 
   return (
     <div className="feature">
-      <Link to="/" className="back" viewTransition><Ceb className="">Balik</Ceb> · Back to all stories</Link>
+      <Link to="/" state={{ morph: true }} className="back"><Ceb className="">Balik</Ceb> · Back to all stories</Link>
 
       <figure>
-        <div className={`scene${paused ? ' is-paused' : ''}`} style={{ viewTransitionName: 'mural-hero' }}>
-          <span role="img" aria-label="Art Deco panorama of the Battle of Mactan: Lapu-Lapu raises his kampilan on the shore with his warriors while Magellan's soldiers wade back to their boats and ships.">
-            <MuralArt svg={mactanSvg} />
-          </span>
-        </div>
+        {/* The living mural from the home page settles here; see MuralStage. */}
+        <MuralSlot kind="panorama" className="scene" />
         <div className="scene-controls">
-          <button type="button" className="button small" aria-pressed={paused} onClick={() => setPaused(p => !p)}>
+          <button type="button" className="button small" aria-pressed={paused} onClick={() => setPaused(!paused)}>
             {paused ? 'Play motion' : 'Pause motion'}
+          </button>
+          <button type="button" className="button small" aria-pressed={music}
+            onClick={() => (music ? stopMusic({ remember: true }) : startMusic())}>
+            {music ? 'Mute music' : 'Play music'}
           </button>
         </div>
         <figcaption>The shore of Mactan, 27 April 1521. An original Art Deco illustration; no portrait of Lapu-Lapu survives.</figcaption>
@@ -79,7 +83,7 @@ export default function LapuLapu() {
         <div className="closing">
           <Sunburst />
           <p className="label" style={{ color: 'var(--gold-text)', margin: 0 }}><Ceb className="">Isugilon ang imoha</Ceb> · Tell yours</p>
-          <Link to={canWrite ? '/new' : '/'} className="button primary" viewTransition>
+          <Link to={canWrite ? '/new' : '/'} className="button primary">
             {canWrite ? 'Write a story' : 'Read the latest stories'}
           </Link>
         </div>

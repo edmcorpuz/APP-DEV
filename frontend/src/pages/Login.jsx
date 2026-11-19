@@ -19,7 +19,7 @@ export default function Login() {
     setError('');
     try {
       await login(form.username.trim(), form.password);
-      navigate('/', { viewTransition: true });
+      navigate('/');
     } catch (err) {
       setError(err.message);
       setBusy(false);
@@ -40,7 +40,7 @@ export default function Login() {
         <label>Password<input name="password" type="password" value={form.password} onChange={update} autoComplete="current-password" required /></label>
         {error && <p className="error-text" role="alert">{error}</p>}
         <div><button className="button primary" disabled={busy}>{busy ? 'Logging in…' : 'Log in'}</button></div>
-        <p className="footnote">New here? <Link to="/register" viewTransition>Create an account</Link></p>
+        <p className="footnote">New here? <Link to="/register">Create an account</Link></p>
       </form>
     </div>
   );

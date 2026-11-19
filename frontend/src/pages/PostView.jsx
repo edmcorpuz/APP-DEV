@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../AuthContext.jsx';
-import { Byline, Ceb, Notice, Sunburst, formatDate, titleTransition } from '../components/Story.jsx';
+import { Byline, Ceb, Notice, Sunburst, formatDate } from '../components/Story.jsx';
 
 export default function PostView() {
   const { id } = useParams();
@@ -36,7 +36,7 @@ export default function PostView() {
         <h1><Ceb className="">Wala makit-i.</Ceb></h1>
         <p className="label" style={{ color: 'var(--gold-text)' }}>This story isn't here</p>
         <p>{error} It may have been deleted, or the link is wrong.</p>
-        <Link to="/" className="button" viewTransition>Back to all stories</Link>
+        <Link to="/" className="button">Back to all stories</Link>
       </div>
     );
   }
@@ -49,10 +49,10 @@ export default function PostView() {
   return (
     <article className="article">
       <header>
-        <Link to="/" className="back" viewTransition><Ceb className="">Balik</Ceb> · Back to all stories</Link>
+        <Link to="/" className="back"><Ceb className="">Balik</Ceb> · Back to all stories</Link>
         {state?.notice && <Notice>{state.notice}</Notice>}
         <Sunburst />
-        <h1 style={titleTransition(post.id)}>{post.title}</h1>
+        <h1>{post.title}</h1>
         <div className="byline">
           <Byline post={post} />
           {edited && <p className="meta">Edited {formatDate(post.updated_at)}</p>}
@@ -62,7 +62,7 @@ export default function PostView() {
       {error && <p className="error-text" role="alert">{error}</p>}
       {(canEdit || canDelete) && (
         <div className="actions">
-          {canEdit && <Link to={`/posts/${post.id}/edit`} className="button" viewTransition>Edit story</Link>}
+          {canEdit && <Link to={`/posts/${post.id}/edit`} className="button">Edit story</Link>}
           {canDelete && (
             <button type="button" className="button danger" onClick={handleDelete} disabled={deleting}>
               {deleting ? 'Deleting…' : 'Delete story'}

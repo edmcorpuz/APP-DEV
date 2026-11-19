@@ -23,7 +23,7 @@ export default function MyPosts() {
       <div style={{ paddingTop: 40 }}>
         <SectionHead as="h1" ceb="Akong mga sugilanon" en="My stories" />
       </div>
-      {canWrite && <p style={{ textAlign: 'center', margin: '0 0 28px' }}><Link to="/new" className="button primary" viewTransition>Write a story</Link></p>}
+      {canWrite && <p style={{ textAlign: 'center', margin: '0 0 28px' }}><Link to="/new" className="button primary">Write a story</Link></p>}
 
       {error && (
         <div className="state" role="alert">
@@ -38,8 +38,8 @@ export default function MyPosts() {
           <h2>{canWrite ? 'Nothing published yet.' : 'Readers don\'t publish.'}</h2>
           <p>{canWrite ? 'Your stories show up here once you publish them.' : 'Your account can read every story. To write, create an author account.'}</p>
           {canWrite
-            ? <Link to="/new" className="button primary" viewTransition>Write your first story</Link>
-            : <Link to="/" className="button" viewTransition>Read the latest stories</Link>}
+            ? <Link to="/new" className="button primary">Write your first story</Link>
+            : <Link to="/" className="button">Read the latest stories</Link>}
         </div>
       )}
       {posts && posts.length > 0 && <StoryIndex posts={posts} showExcerpt />}
