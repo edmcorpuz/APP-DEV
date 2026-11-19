@@ -67,7 +67,7 @@ export function Mural({ name, priority = false }) {
   return (
     <figure className="mural">
       <motion.div className="arch" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}>
-        <img src={`/art/${name}.png`} alt={`Art Deco illustration of ${title}`} width="960" height="1200" fetchpriority={priority ? 'high' : 'auto'} />
+        <img src={`${import.meta.env.BASE_URL}art/${name}.png`} alt={`Art Deco illustration of ${title}`} width="960" height="1200" fetchpriority={priority ? 'high' : 'auto'} />
       </motion.div>
       <figcaption><strong>{title}</strong>{caption}</figcaption>
     </figure>

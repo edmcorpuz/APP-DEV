@@ -47,6 +47,25 @@ npm run seed
 | eli_author | author | StoryTime123! |
 | sam_admin | admin | StoryTime123! |
 
+## GitHub Pages
+
+The React frontend is published at **https://edmcorpuz.github.io/APP-DEV/**.
+
+GitHub Pages only hosts static files, so the two Express servers and MariaDB still run on your
+computer. What works where:
+
+- **Always, with nothing running:** the home page design, the animated Lapu-Lapu mural, and the
+  full "Lapu-Lapu of Mactan" story page with the Battle of Mactan panorama.
+- **When `npm run dev` and XAMPP MySQL are running on the same computer:** posts, login, writing
+  and deleting also work on the Pages site, because both servers allow
+  `https://edmcorpuz.github.io` in CORS (`FRONTEND_ORIGIN` in `.env`). Chrome may ask once for
+  permission to let the site reach your local network. The login lasts until you reload, because
+  the browser does not send the refresh cookie from github.io to localhost.
+- Otherwise the stories area shows "Can't reach the server" with a Try again button.
+
+To publish changes: `npm run deploy:pages` (builds with the `/APP-DEV/` base path and pushes the
+result to the `gh-pages` branch).
+
 ## Database (schema)
 
 - **roles**: id, role (unique), created_at, updated_at, encoder_id. Seeded with reader, author and admin.

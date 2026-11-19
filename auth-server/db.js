@@ -23,5 +23,6 @@ export const pool = mysql.createPool({
 export const config = {
   secret: process.env.JWT_SECRET,
   port: Number(process.env.AUTH_PORT || 4000),
-  origin: process.env.FRONTEND_ORIGIN || 'http://localhost:5173',
+  // Comma-separated list: the local dev server and the GitHub Pages site.
+  origin: (process.env.FRONTEND_ORIGIN || 'http://localhost:5173,https://edmcorpuz.github.io').split(',').map(s => s.trim()),
 };

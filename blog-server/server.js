@@ -7,6 +7,13 @@ import { postRoutes } from './src/routes/postRoutes.js';
 const app = express();
 app.disable('x-powered-by');
 app.use(helmet());
+// Chrome asks before a public site (GitHub Pages) may call localhost; say yes for allowed origins.
+app.use((req, res, next) => {
+  if (req.headers['access-control-request-private-network'] && config.origin.includes(req.headers.origin)) {
+    res.setHeader('Access-Control-Allow-Private-Network', 'true');
+  }
+  next();
+});
 app.use(cors({ origin: config.origin }));
 app.use(express.json({ limit: '64kb' }));
 

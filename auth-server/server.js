@@ -9,6 +9,13 @@ import { authRoutes } from './src/routes/authRoutes.js';
 const app = express();
 app.disable('x-powered-by');
 app.use(helmet());
+// Chrome asks before a public site (GitHub Pages) may call localhost; say yes for allowed origins.
+app.use((req, res, next) => {
+  if (req.headers['access-control-request-private-network'] && config.origin.includes(req.headers.origin)) {
+    res.setHeader('Access-Control-Allow-Private-Network', 'true');
+  }
+  next();
+});
 // credentials: true lets the browser send the httpOnly refresh cookie to this server.
 app.use(cors({ origin: config.origin, credentials: true }));
 app.use(express.json({ limit: '16kb' }));
