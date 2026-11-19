@@ -107,8 +107,8 @@ blog-platform/
 │   ├── db.js
 │   └── src/ routes/ controllers/ middleware/ (authenticate.js, authorize.js)
 └── frontend/                React + Vite + Motion
-    ├── art/sunrise.mjs      generates the masthead artwork (node frontend/art/sunrise.mjs)
-    ├── public/art/          adlaw.png (used on the site) and adlaw.svg
+    ├── art/murals.mjs       generates the Lapu-Lapu and Sultan Kudarat murals (node frontend/art/murals.mjs)
+    ├── public/art/          lapulapu.png, kudarat.png (used on the site) and their .svg sources
     └── src/ AuthContext.jsx, App.jsx, pages/, components/
 ```
 

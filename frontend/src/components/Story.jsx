@@ -30,6 +30,30 @@ export function Sunburst({ className = 'ornament' }) {
   );
 }
 
+// The two murals (frontend/art/murals.mjs). Captions state only well-documented history.
+const MURALS = {
+  lapulapu: {
+    title: 'Lapu-Lapu of Mactan',
+    caption: 'Led the warriors of Mactan who defeated Magellan’s force in 1521. Mindanao vintas sail beside him.',
+  },
+  kudarat: {
+    title: 'Sultan Kudarat of Maguindanao',
+    caption: 'Ruled in the 1600s and resisted Spanish rule in Mindanao. Shown beneath a torogan roof.',
+  },
+};
+
+export function Mural({ name, priority = false }) {
+  const { title, caption } = MURALS[name];
+  return (
+    <figure className="mural">
+      <motion.div className="arch" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}>
+        <img src={`/art/${name}.png`} alt={`Art Deco illustration of ${title}`} width="960" height="1200" fetchpriority={priority ? 'high' : 'auto'} />
+      </motion.div>
+      <figcaption><strong>{title}</strong>{caption}</figcaption>
+    </figure>
+  );
+}
+
 // Rows take their seats in order, then everything is still.
 const list = { hidden: {}, shown: { transition: { staggerChildren: 0.07 } } };
 const row = {

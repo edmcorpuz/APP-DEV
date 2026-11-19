@@ -13,7 +13,7 @@
   --ink: #13201f;
   --muted: #4f5b57;
   --gold: #a9823a;        /* rules and frames (3.05:1, non-text) */
-  --gold-text: #8a6626;   /* large labels only (4.53:1) */
+  --gold-text: #7a5a1f;   /* 5.48:1 plain, 4.62:1 over the darkest texture pixel */
   --gold-fill: #d2ae5c;   /* filled label, ink text on it (7.93:1) */
   --sea: #0e4744;         /* primary button, ivory text (9.06:1) */
   --on-sea: #f4eedf;
@@ -24,6 +24,11 @@
   --head: 'Josefin Sans', 'Century Gothic', 'Futura', sans-serif;
   --text: 'Didact Gothic', 'Century Gothic', system-ui, sans-serif;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Texture (R-07 reason: capiz/abaca paper grain plus a T'nalak diamond lattice ties the page
+     to Filipino weaving). Kept faint: text was checked against the darkest texture pixel. */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .32 0 0 0 0 .24 0 0 0 0 .12 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --lattice: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cpath d='M28 3 53 28 28 53 3 28Z' fill='none' stroke='%23a9823a' stroke-opacity='.1'/%3E%3Cpath d='M28 22 34 28 28 34 22 28Z' fill='%23a9823a' fill-opacity='.1'/%3E%3C/svg%3E");
+  --rays: repeating-conic-gradient(from -90deg at 50% 100%, rgb(169 130 58 / 0.06) 0deg 3deg, transparent 3deg 9deg);
   --waves: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='20' viewBox='0 0 40 20'%3E%3Cpath d='M0 20a20 20 0 0 1 40 0' fill='none' stroke='%23a9823a' stroke-width='2'/%3E%3Cpath d='M8 20a12 12 0 0 1 24 0' fill='none' stroke='%23a9823a' stroke-width='2'/%3E%3C/svg%3E");
 
   color-scheme: light;
@@ -36,17 +41,27 @@
   :root:not([data-theme='light']) {
     --bg: #0d1918; --card: #132422; --ink: #f1e9d6; --muted: #b4b9ae; --gold: #b8954d;
     --gold-text: #d8b568; --gold-fill: #d8b568; --sea: #d8b568; --on-sea: #0d1918; --danger: #f08a7e;
+    --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .95 0 0 0 0 .9 0 0 0 0 .8 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    --lattice: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cpath d='M28 3 53 28 28 53 3 28Z' fill='none' stroke='%23b8954d' stroke-opacity='.12'/%3E%3Cpath d='M28 22 34 28 28 34 22 28Z' fill='%23b8954d' fill-opacity='.12'/%3E%3C/svg%3E");
+    --rays: repeating-conic-gradient(from -90deg at 50% 100%, rgb(184 149 77 / 0.07) 0deg 3deg, transparent 3deg 9deg);
     color-scheme: dark;
   }
 }
 :root[data-theme='dark'] {
   --bg: #0d1918; --card: #132422; --ink: #f1e9d6; --muted: #b4b9ae; --gold: #b8954d;
   --gold-text: #d8b568; --gold-fill: #d8b568; --sea: #d8b568; --on-sea: #0d1918; --danger: #f08a7e;
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .95 0 0 0 0 .9 0 0 0 0 .8 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --lattice: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cpath d='M28 3 53 28 28 53 3 28Z' fill='none' stroke='%23b8954d' stroke-opacity='.12'/%3E%3Cpath d='M28 22 34 28 28 34 22 28Z' fill='%23b8954d' fill-opacity='.12'/%3E%3C/svg%3E");
+  --rays: repeating-conic-gradient(from -90deg at 50% 100%, rgb(184 149 77 / 0.07) 0deg 3deg, transparent 3deg 9deg);
   color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); font-size: 1.05rem; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+body {
+  margin: 0; font-size: 1.05rem; line-height: 1.65; -webkit-font-smoothing: antialiased;
+  background: var(--grain), var(--lattice), var(--bg);
+  background-size: 220px 220px, 56px 56px, auto;
+}
 h1, h2, h3 { font-family: var(--head); font-weight: 700; line-height: 1.1; letter-spacing: 0.005em; text-wrap: balance; margin: 0; }
 p { text-wrap: pretty; }
 a { color: inherit; }
@@ -122,7 +137,8 @@ button:disabled { cursor: not-allowed; }
 
 /* ---------- Masthead: a symmetric facade ---------- */
 main.wrap { padding-block: 0 0; min-height: 70vh; }
-.masthead { text-align: center; padding: 40px 0 0; }
+/* Faint sunburst fanning up from the mural: the motif carried into the page itself. */
+.masthead { text-align: center; padding: 40px 0 0; background: var(--rays); }
 .masthead .kicker { color: var(--gold-text); margin: 0 0 18px; }
 .masthead h1 {
   font: 400 clamp(3.2rem, 12vw, 9.5rem)/0.95 var(--marquee); letter-spacing: 0.06em; text-transform: uppercase;
@@ -133,12 +149,15 @@ main.wrap { padding-block: 0 0; min-height: 70vh; }
 .masthead .dek .ceb { display: block; font-size: 1.3rem; color: var(--ink); margin-bottom: 4px; }
 
 .facade { display: grid; gap: 20px; align-items: end; margin: 36px 0 0; }
+.mural { justify-self: center; display: grid; justify-items: center; gap: 14px; margin: 0; }
 .arch {
-  justify-self: center; width: min(320px, 78vw); aspect-ratio: 4 / 5; margin: 0;
+  width: min(420px, 80vw); aspect-ratio: 4 / 5;
   border-radius: 999px 999px 0 0; overflow: hidden; border: 1px solid var(--gold);
-  outline: 1px solid var(--gold); outline-offset: 6px;
+  outline: 1px solid var(--gold); outline-offset: 6px; background: var(--night);
 }
 .arch img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.mural figcaption { max-width: 34ch; font-size: 0.88rem; color: var(--muted); }
+.mural figcaption strong { display: block; font: 600 0.78rem var(--head); letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-text); }
 .pillar { display: grid; gap: 8px; justify-items: center; text-align: center; padding: 16px 0; border-top: 3px double var(--gold); }
 .pillar .count { font: 300 2.6rem/1 var(--head); font-variant-numeric: tabular-nums; }
 .pillar input { max-width: 300px; text-align: center; }
@@ -146,14 +165,13 @@ main.wrap { padding-block: 0 0; min-height: 70vh; }
   .facade { grid-template-columns: 1fr auto 1fr; gap: 0 48px; }
   .facade .pillar { border-top: 0; border-bottom: 3px double var(--gold); padding: 0 0 20px; }
   .facade .pillar:first-child { order: 0; }
-  .facade .arch { order: 1; }
+  .facade .mural { order: 1; }
   .facade .pillar:last-child { order: 2; }
 }
 /* Phones and tablets: a compact facade so the lead story still starts near the top. */
 @media (max-width: 899px) {
   .facade { gap: 14px; margin-top: 24px; }
-  .arch { width: min(260px, 66vw); aspect-ratio: 1; outline-offset: 4px; }
-  .arch img { object-position: 50% 28%; }
+  .arch { width: min(320px, 76vw); outline-offset: 4px; }
   .facade .pillar:first-child { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 4px 10px; padding: 10px 0; }
   .facade .pillar:first-child .count { font-size: 1.4rem; }
   .facade .pillar:first-child .label { flex-basis: 100%; }
@@ -167,6 +185,14 @@ main.wrap { padding-block: 0 0; min-height: 70vh; }
   background: var(--card); border: 1px solid var(--gold); outline: 1px solid var(--gold); outline-offset: 7px;
   text-align: center; display: grid; gap: 18px; justify-items: center;
 }
+/* Quarter-sunburst fans in two corners: the Deco corner piece marking the feature. */
+.lead::before, .lead::after {
+  content: ''; position: absolute; width: 56px; height: 56px; pointer-events: none;
+  background: repeating-conic-gradient(from 0deg at 0 0, var(--gold) 0deg 4deg, transparent 4deg 11deg);
+  mask: radial-gradient(circle at 0 0, #000 0 54px, transparent 55px);
+}
+.lead::before { top: 10px; left: 10px; }
+.lead::after { bottom: 10px; right: 10px; rotate: 180deg; }
 .lead .ornament { position: absolute; top: -22px; left: 50%; translate: -50% 0; width: 64px; padding: 0 10px; background: var(--bg); color: var(--gold); }
 .tag { display: inline-flex; gap: 8px; padding: 6px 12px; background: var(--gold-fill); color: #13201f; }
 .lead h2 { font-size: clamp(2.2rem, 5.5vw, 4.2rem); max-width: 18ch; }
@@ -227,12 +253,15 @@ main.wrap { padding-block: 0 0; min-height: 70vh; }
 /* ---------- Forms ---------- */
 .split { display: grid; gap: 32px 72px; padding: 48px 0 72px; }
 .split .intro { display: grid; gap: 10px; align-content: start; }
+.split .mural { justify-self: start; margin-top: 28px; justify-items: start; }
+.split .arch { width: min(300px, 100%); }
+@media (max-width: 899px) { .split .mural { display: none; } } /* decorative: keep the form near the top on phones */
 .split h1 { font: 400 clamp(2.6rem, 7vw, 4.8rem)/1 var(--marquee); text-transform: uppercase; letter-spacing: 0.04em; }
 .split .en { color: var(--gold-text); }
 .split .dek { max-width: 34ch; margin: 6px 0 0; color: var(--muted); }
 @media (min-width: 900px) { .split { grid-template-columns: 1fr 1fr; } }
 
-.form { display: grid; gap: 22px; }
+.form { display: grid; gap: 22px; align-content: start; }
 .form label, .form legend { display: grid; gap: 8px; font: 600 0.92rem var(--head); letter-spacing: 0.02em; }
 input, textarea, select {
   width: 100%; min-height: 48px; padding: 12px 14px; font: 1rem var(--text);
