@@ -40,14 +40,14 @@ function canvas(w = W, h = H) {
   };
   const group = (cls, fn, { hidden = false } = {}) => { shapes.push({ open: cls, hidden }); fn(); shapes.push({ close: true }); };
   const place = (t, fn) => { const prev = tf; tf = t; fn(); tf = prev; };
-  return { w, h, shapes, poly, mirror, both, rect, arcPts, ellipse, band, group, place };
+  return { w, h, shapes, defs: [], poly, mirror, both, rect, arcPts, ellipse, band, group, place };
 }
 
 function sky(k, horizon) {
   SEA.forEach((c, i) => k.rect(0, (horizon / SEA.length) * i, k.w, horizon / SEA.length + 1, c));
 }
 
-function sunburst(k, cx, cy, inner, outer, count, wide, thin) {
+function sunburst(k, cx, cy, inner, outer, count, wide, thin, [ca, cb] = [C.gold, C.goldDeep]) {
   for (let i = 0; i < count; i++) {
     const a = (Math.PI * 2 * i) / count - Math.PI / 2;
     const wd = i % 2 ? thin : wide;
@@ -57,7 +57,7 @@ function sunburst(k, cx, cy, inner, outer, count, wide, thin) {
       [cx + dx * outer - px * wd, cy + dy * outer - py * wd],
       [cx + dx * outer + px * wd, cy + dy * outer + py * wd],
       [cx + dx * inner + px * wd * 0.3, cy + dy * inner + py * wd * 0.3],
-    ], i % 2 ? C.goldDeep : C.gold);
+    ], i % 2 ? cb : ca);
   }
 }
 
@@ -349,19 +349,43 @@ function palm(k, x, y, h, lean) {
   });
 }
 
+// SVG gradients for the poster look (world.svg only; the PNG murals keep flat fills).
+const stops = list => list.map(([o, c, a = 1]) => `<stop offset="${o}" stop-color="${c}" stop-opacity="${a}"/>`).join('');
+const linear = (k, id, y1, y2, list) => k.defs.push(`<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="0" y1="${y1}" x2="0" y2="${y2}">${stops(list)}</linearGradient>`);
+const radial = (k, id, list, at = '') => k.defs.push(`<radialGradient id="${id}" ${at}>${stops(list)}</radialGradient>`);
+
 function world() {
   const k = canvas(1600, 900);
   const HZ = 600;
-  sky(k, HZ);
+  // Poster sky: night at the top, banded down to an amber horizon, as on 1930s travel posters.
+  linear(k, 'w-sky', 0, HZ, [[0, '#061010'], [0.35, '#0d1918'], [0.62, '#163d39'], [0.82, '#3d5f4c'], [0.94, '#a98a4e'], [1, '#d9b46a']]);
+  linear(k, 'w-hill-far', 500, HZ, [[0, '#2a4a40'], [1, '#12302c']]); // the far range hazier: aerial depth
+  linear(k, 'w-hill-near', 548, HZ, [[0, '#183632'], [1, '#0f2523']]);
+  radial(k, 'w-ray', [[0, '#f7e6b8', 0.95], [0.3, '#d2ae5c', 0.7], [1, '#a9823a', 0.05]], 'gradientUnits="userSpaceOnUse" cx="0" cy="0" r="1500"');
+  radial(k, 'w-ray-deep', [[0, '#d2ae5c', 0.85], [0.3, '#a9823a', 0.5], [1, '#6e5420', 0]], 'gradientUnits="userSpaceOnUse" cx="0" cy="0" r="1500"');
+  radial(k, 'w-core', [[0, '#fffaf0'], [1, '#f0d79a']]);
+  radial(k, 'w-glow', [[0, '#ffe6a8', 0.55], [0.5, '#e8b860', 0.2], [1, '#e8b860', 0]]);
+  linear(k, 'w-seaglow', HZ, HZ + 140, [[0, '#f0c878', 0.35], [1, '#f0c878', 0]]);
+  linear(k, 'w-reflect', HZ, 830, [[0, '#fff0c8', 0.6], [0.6, '#f0c878', 0.18], [1, '#f0c878', 0]]);
+  linear(k, 'w-sand', 752, 830, [[0, '#dcbc7a'], [1, '#a8874c']]);
+  k.rect(0, 0, k.w, HZ + 1, 'url(#w-sky)');
   // Across the strait: the hills of Cebu, two ranges deep.
-  k.poly([[-40, 600], [-40, 548], [80, 520], [190, 540], [300, 500], [420, 534], [560, 512], [700, 548], [820, 556], [880, 600]], '#0f2725');
-  k.poly([[-40, 600], [-40, 572], [120, 556], [260, 566], [380, 548], [520, 566], [660, 574], [780, 600]], '#132f2c');
-  k.group('w-rays', () => k.group('w-par w-par-far', () => k.group('w-spin', () => sunburst(k, 0, 0, 120, 1500, 44, 34, 12))));
-  k.group('w-sun', () => [[150, C.gold], [138, SEA[3]], [124, C.gold], [110, C.ivory], [100, C.gold]].forEach(([r, c]) =>
-    k.poly([...k.arcPts(1100, HZ, r, r, Math.PI, 2 * Math.PI, 48), [1100 + r, HZ]], c)));
+  k.poly([[-40, 600], [-40, 548], [80, 520], [190, 540], [300, 500], [420, 534], [560, 512], [700, 548], [820, 556], [880, 600]], 'url(#w-hill-far)');
+  k.poly([[-40, 600], [-40, 572], [120, 556], [260, 566], [380, 548], [520, 566], [660, 574], [780, 600]], 'url(#w-hill-near)');
+  k.group('w-rays', () => k.group('w-par w-par-far', () => k.group('w-spin', () => sunburst(k, 0, 0, 120, 1500, 44, 34, 12, ['url(#w-ray)', 'url(#w-ray-deep)']))));
+  k.group('w-sun', () => {
+    k.ellipse(1100, HZ, 560, 330, 'url(#w-glow)');
+    [[150, C.gold], [138, SEA[3]], [124, C.gold], [110, 'url(#w-core)'], [100, C.gold]].forEach(([r, c]) =>
+      k.poly([...k.arcPts(1100, HZ, r, r, Math.PI, 2 * Math.PI, 48), [1100 + r, HZ]], c));
+  });
   [[330, 6, 0.72, 'w-ship-1'], [640, 14, 0.5, 'w-ship-2']].forEach(([x, dy, s, cls]) =>
     k.group(`w-ship ${cls}`, () => k.group('w-bob', () => k.place({ x, y: HZ + dy, ox: 0, oy: 0, s }, () => galleon(k)))));
   k.group('w-par w-par-mid', () => waves(k, HZ, 790, 30));
+  // Sunlight on the water. Inside .w-sun so it rises (and sets) with the sun; .w-glint shimmers.
+  k.group('w-sun', () => k.group('w-glint', () => {
+    k.rect(0, HZ, k.w, 140, 'url(#w-seaglow)');
+    k.poly([[1046, HZ], [1154, HZ], [1290, 830], [910, 830]], 'url(#w-reflect)');
+  }));
   k.group('w-vinta w-vinta-l', () => k.group('w-bob', () => k.place({ x: 950, y: 768, ox: 180, oy: 944, s: 0.45 }, () => vinta(k, 70))));
   k.group('w-vinta w-vinta-r', () => k.group('w-bob', () => k.place({ x: 1250, y: 768, ox: 780, oy: 944, s: 0.45 }, () => vinta(k, 70, true))));
   k.group('w-retreat', () => {
@@ -371,7 +395,7 @@ function world() {
   });
   k.group('w-surf', () => waves(k, 748, 832, 22));
   // The island of Mactan: a low shore of sand and reef stone, coconut palms along it.
-  k.poly([[620, 830], [700, 792], [1020, 780], [1600, 752], [1600, 830]], C.sand);
+  k.poly([[620, 830], [700, 792], [1020, 780], [1600, 752], [1600, 830]], 'url(#w-sand)');
   for (let i = 0; i < 4; i++) k.poly([[700 + i * 40, 800 - i * 2], [1600, 760 + i * 14], [1600, 764 + i * 14], [704 + i * 40, 804 - i * 2]], C.sandDark);
   palm(k, 1560, 790, 300, -1);
   palm(k, 1500, 800, 250, -0.6);
@@ -459,7 +483,8 @@ function toSvg(k) {
     if (s.close) return '</g>';
     return `<polygon fill="${s.c}" points="${s.pts.map(([x, y]) => `${f(x)},${f(y)}`).join(' ')}"/>`;
   }).join('');
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${k.w} ${k.h}" preserveAspectRatio="xMidYMid slice">${body}</svg>\n`;
+  const defs = k.defs.length ? `<defs>${k.defs.join('')}</defs>` : '';
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${k.w} ${k.h}" preserveAspectRatio="xMidYMid slice">${defs}${body}</svg>\n`;
 }
 
 const crcTable = Array.from({ length: 256 }, (_, n) => { let c = n; for (let i = 0; i < 8; i++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; });
