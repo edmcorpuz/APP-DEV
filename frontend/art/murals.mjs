@@ -24,8 +24,14 @@ const C = {
 function canvas(w = W, h = H) {
   const shapes = [];
   let tf = null; // { x, y, ox, oy, s }: local (ox, oy) lands on (x, y), scaled by s
-  const T = ([x, y]) => (tf ? [tf.x + (x - tf.ox) * tf.s, tf.y + (y - tf.oy) * tf.s] : [x, y]);
-  const poly = (pts, c) => shapes.push({ pts: pts.map(T), c });
+  let shade = false; // figures drawn inside shaded() get poster shading and rounded corners in the SVG
+  let rot = null, flipX = false; // turn(): rotate about a pivot; flipped(): mirror a figure about x = CX
+  const T = ([x, y]) => {
+    if (rot) { const dx = x - rot.c[0], dy = y - rot.c[1]; [x, y] = [rot.c[0] + dx * rot.cos - dy * rot.sin, rot.c[1] + dx * rot.sin + dy * rot.cos]; }
+    if (flipX) x = 2 * CX - x;
+    return tf ? [tf.x + (x - tf.ox) * tf.s, tf.y + (y - tf.oy) * tf.s] : [x, y];
+  };
+  const poly = (pts, c) => shapes.push({ pts: pts.map(T), c, shade });
   const mirror = pts => pts.map(([x, y]) => [2 * CX - x, y]).reverse();
   const both = (pts, c, cRight = c) => { poly(pts, c); poly(mirror(pts), cRight); };
   const rect = (x, y, rw, rh, c) => poly([[x, y], [x + rw, y], [x + rw, y + rh], [x, y + rh]], c);
@@ -38,9 +44,12 @@ function canvas(w = W, h = H) {
     const dx = x2 - x1, dy = y2 - y1, l = Math.hypot(dx, dy), px = (-dy / l) * t / 2, py = (dx / l) * t / 2;
     poly([[x1 + px, y1 + py], [x2 + px, y2 + py], [x2 - px, y2 - py], [x1 - px, y1 - py]], c);
   };
-  const group = (cls, fn, { hidden = false } = {}) => { shapes.push({ open: cls, hidden }); fn(); shapes.push({ close: true }); };
+  const group = (cls, fn, { hidden = false, style } = {}) => { shapes.push({ open: cls, hidden, style }); fn(); shapes.push({ close: true }); };
   const place = (t, fn) => { const prev = tf; tf = t; fn(); tf = prev; };
-  return { w, h, shapes, defs: [], poly, mirror, both, rect, arcPts, ellipse, band, group, place };
+  const shaded = fn => { const prev = shade; shade = true; fn(); shade = prev; };
+  const turn = (c, deg, fn) => { const prev = rot, a = (deg * Math.PI) / 180; rot = { c, cos: Math.cos(a), sin: Math.sin(a) }; fn(); rot = prev; };
+  const flipped = (on, fn) => { const prev = flipX; flipX = on; fn(); flipX = prev; };
+  return { w, h, shapes, defs: [], shaded, turn, flipped, pt: T, poly, mirror, both, rect, arcPts, ellipse, band, group, place };
 }
 
 function sky(k, horizon) {
@@ -126,7 +135,9 @@ function plinth(k, y) {
 // pose: 'clasp' (kampilan held point-down), 'raised' (weapon raised overhead),
 //       'both' (clasp shown, raised hidden: the hover animation swaps them).
 // weapon: 'kampilan' or 'spear'; shield adds a kalasag in the left hand (raised pose).
-function warrior(k, { pose = 'clasp', weapon = 'kampilan', shield = false, cloth = C.red, putong = true } = {}) {
+// arm: degrees the weapon arm turns from straight up, about the shoulder (556, 446).
+// armGroup: wraps that arm in a <g> whose transform-origin is the shoulder, so CSS can swing it.
+function warrior(k, { pose = 'clasp', weapon = 'kampilan', shield = false, cloth = C.red, putong = true, arm = 0, armGroup = null } = {}) {
   const animated = pose === 'both';
   const clasp = fn => (pose === 'raised' ? null : animated ? k.group('m-clasp', fn) : fn());
   const raised = (cls, fn) => (pose === 'clasp' ? null : animated ? k.group(cls, fn, { hidden: true }) : fn());
@@ -203,6 +214,11 @@ function warrior(k, { pose = 'clasp', weapon = 'kampilan', shield = false, cloth
   // Raised pose: right arm lifts the weapon overhead. When animated this layer rotates up
   // from the shoulder (556, 446).
   raised('m-raise', () => {
+    const [ox, oy] = k.pt([556, 446]);
+    const draw = () => k.turn([556, 446], arm, drawArm);
+    if (armGroup) k.group(armGroup, draw, { style: `transform-origin:${f(ox)}px ${f(oy)}px` }); else draw();
+  });
+  function drawArm() {
     k.poly([[536, 440], [574, 452], [614, 366], [584, 350]], C.bronzeDark);
     k.band(560, 398, 590, 413, 8, C.gold);
     k.poly([[584, 362], [614, 362], [608, 268], [580, 272]], C.bronze);
@@ -221,7 +237,7 @@ function warrior(k, { pose = 'clasp', weapon = 'kampilan', shield = false, cloth
     }
     k.ellipse(597, 266, 19, 17, C.tattoo);
     k.ellipse(594, 262, 18, 16, C.bronzeLight);
-  });
+  }
 
   if (shield && pose === 'raised') { // kalasag: tall narrow shield, red and ivory
     k.poly([[352, 470], [412, 462], [420, 760], [360, 770]], C.ivory);
@@ -379,38 +395,44 @@ function world() {
       k.poly([...k.arcPts(1100, HZ, r, r, Math.PI, 2 * Math.PI, 48), [1100 + r, HZ]], c));
   });
   [[330, 6, 0.72, 'w-ship-1'], [640, 14, 0.5, 'w-ship-2']].forEach(([x, dy, s, cls]) =>
-    k.group(`w-ship ${cls}`, () => k.group('w-bob', () => k.place({ x, y: HZ + dy, ox: 0, oy: 0, s }, () => galleon(k)))));
+    k.group(`w-ship ${cls}`, () => k.group('w-bob', () => k.place({ x, y: HZ + dy, ox: 0, oy: 0, s }, () => k.shaded(() => galleon(k))))));
   k.group('w-par w-par-mid', () => waves(k, HZ, 790, 30));
   // Sunlight on the water. Inside .w-sun so it rises (and sets) with the sun; .w-glint shimmers.
   k.group('w-sun', () => k.group('w-glint', () => {
     k.rect(0, HZ, k.w, 140, 'url(#w-seaglow)');
     k.poly([[1046, HZ], [1154, HZ], [1290, 830], [910, 830]], 'url(#w-reflect)');
   }));
-  k.group('w-vinta w-vinta-l', () => k.group('w-bob', () => k.place({ x: 950, y: 768, ox: 180, oy: 944, s: 0.45 }, () => vinta(k, 70))));
-  k.group('w-vinta w-vinta-r', () => k.group('w-bob', () => k.place({ x: 1250, y: 768, ox: 780, oy: 944, s: 0.45 }, () => vinta(k, 70, true))));
+  k.group('w-vinta w-vinta-l', () => k.group('w-bob', () => k.place({ x: 950, y: 768, ox: 180, oy: 944, s: 0.45 }, () => k.shaded(() => vinta(k, 70)))));
+  k.group('w-vinta w-vinta-r', () => k.group('w-bob', () => k.place({ x: 1250, y: 768, ox: 780, oy: 944, s: 0.45 }, () => k.shaded(() => vinta(k, 70, true)))));
   k.group('w-retreat', () => {
-    k.group('w-bob', () => k.place({ x: 250, y: 742, ox: 0, oy: 0, s: 1 }, () => longboat(k)));
+    k.group('w-bob', () => k.place({ x: 250, y: 742, ox: 0, oy: 0, s: 1 }, () => k.shaded(() => longboat(k))));
     [[170, 0.5], [300, 0.56], [400, 0.52], [500, 0.6]].forEach(([x, s]) =>
-      k.group('w-wade', () => k.place({ x, y: 800, ox: 0, oy: 0, s }, () => soldier(k))));
+      k.group('w-wade', () => k.place({ x, y: 800, ox: 0, oy: 0, s }, () => k.shaded(() => soldier(k)))));
   });
   k.group('w-surf', () => waves(k, 748, 832, 22));
   // The island of Mactan: a low shore of sand and reef stone, coconut palms along it.
   k.poly([[620, 830], [700, 792], [1020, 780], [1600, 752], [1600, 830]], 'url(#w-sand)');
   for (let i = 0; i < 4; i++) k.poly([[700 + i * 40, 800 - i * 2], [1600, 760 + i * 14], [1600, 764 + i * 14], [704 + i * 40, 804 - i * 2]], C.sandDark);
-  palm(k, 1560, 790, 300, -1);
-  palm(k, 1500, 800, 250, -0.6);
-  palm(k, 1335, 792, 230, 0.7);
-  palm(k, 690, 806, 210, -0.9);
+  k.shaded(() => {
+    palm(k, 1560, 790, 300, -1);
+    palm(k, 1500, 800, 250, -0.6);
+    palm(k, 1335, 792, 230, 0.7);
+    palm(k, 690, 806, 210, -0.9);
+  });
   [[760, 812, 34, 16], [1480, 800, 46, 20], [1560, 812, 40, 16]].forEach(([x, y, rx, ry]) => k.ellipse(x, y, rx, ry, '#1d2b29'));
-  [[860, 0.44, 'w1', C.ink], [1300, 0.46, 'w2', C.red], [1430, 0.42, 'w3', C.ink], [740, 0.4, 'w4', C.red]].forEach(([x, s, cls, cloth]) =>
-    k.group(`w-warrior ${cls}`, () => k.group('w-sway', () => k.place({ x, y: 812, ox: CX, oy: 978, s }, () =>
-      warrior(k, { pose: 'raised', weapon: 'spear', shield: true, cloth, putong: cls === 'w2' })))));
+  // Every warrior in a different stance (flip: turned to face the retreat on the left):
+  //   w1 spear cocked back to throw · w2 shield forward, spear low on guard
+  //   w3 no shield, spear swung overhead · w4 spear levelled at the enemy
+  [[860, 0.44, 'w1', C.ink, { arm: 40 }], [1300, 0.46, 'w2', C.red, { arm: 140, flip: true }],
+    [1430, 0.42, 'w3', C.ink, { arm: -20, shield: false }], [740, 0.4, 'w4', C.red, { arm: 88, flip: true }]].forEach(([x, s, cls, cloth, o]) =>
+    k.group(`w-warrior ${cls}`, () => k.group('w-sway', () => k.place({ x, y: 812, ox: CX, oy: 978, s }, () => k.flipped(!!o.flip, () =>
+      k.shaded(() => warrior(k, { pose: 'raised', weapon: 'spear', shield: o.shield ?? true, cloth, putong: cls === 'w2', arm: o.arm, armGroup: `w-arm w-arm-${cls}` })))))));
   k.group('w-hero', () => k.group('w-par w-par-near', () => {
     const [hx, hy] = heroPoint(CX, 352);
     k.group('w-halo', () => [[78, C.gold], [70, SEA[3]], [62, C.gold], [56, C.ivory]].forEach(([r, c]) => k.ellipse(hx, hy, r, r, c)));
     k.place({ x: HERO.x, y: HERO.y, ox: CX, oy: 978, s: HERO.s }, () => {
       plinth(k, 976);
-      k.group('w-breathe', () => warrior(k, { pose: 'both' }));
+      k.group('w-breathe', () => k.shaded(() => warrior(k, { pose: 'both' })));
     });
   }));
   tnalak(k, 830, 70);
@@ -477,12 +499,33 @@ function kudarat() {
 
 // ---------- output ----------
 const f = n => Math.round(n); // whole user units: invisible at display size, much smaller files
+const hexRgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+const mixHex = (h, to, t) => '#' + hexRgb(h).map((v, i) => Math.round(v + (to[i] - v) * t).toString(16).padStart(2, '0')).join('');
+// Each corner cut back by up to r and bridged with a curve: smooth joints without losing the silhouette.
+function roundedPath(pts, r = 3) {
+  const n = pts.length, at = (p, q, d) => { const l = Math.hypot(q[0] - p[0], q[1] - p[1]) || 1; return [p[0] + ((q[0] - p[0]) * d) / l, p[1] + ((q[1] - p[1]) * d) / l]; };
+  let d = '';
+  for (let i = 0; i < n; i++) {
+    const p = pts[i], a = pts[(i + n - 1) % n], b = pts[(i + 1) % n];
+    const cut = Math.min(r, Math.hypot(a[0] - p[0], a[1] - p[1]) / 2, Math.hypot(b[0] - p[0], b[1] - p[1]) / 2);
+    const [p1, p2] = [at(p, a, cut), at(p, b, cut)];
+    d += `${i ? 'L' : 'M'}${f(p1[0])} ${f(p1[1])}Q${f(p[0])} ${f(p[1])} ${f(p2[0])} ${f(p2[1])}`;
+  }
+  return d + 'Z';
+}
 function toSvg(k) {
+  const shades = new Set();
   const body = k.shapes.map(s => {
-    if (s.open) return `<g class="${s.open}">`;
+    if (s.open) return `<g class="${s.open}"${s.style ? ` style="${s.style}"` : ''}>`;
     if (s.close) return '</g>';
+    if (s.shade && s.c.startsWith('#')) {
+      shades.add(s.c);
+      return `<path fill="url(#s${s.c.slice(1)})" d="${roundedPath(s.pts)}"/>`;
+    }
     return `<polygon fill="${s.c}" points="${s.pts.map(([x, y]) => `${f(x)},${f(y)}`).join(' ')}"/>`;
   }).join('');
+  // Poster shading: lit warm from above, falling into shadow below (one gradient per colour).
+  for (const c of shades) k.defs.push(`<linearGradient id="s${c.slice(1)}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${mixHex(c, [255, 243, 214], 0.24)}"/><stop offset="0.5" stop-color="${c}"/><stop offset="1" stop-color="${mixHex(c, [5, 10, 9], 0.3)}"/></linearGradient>`);
   const defs = k.defs.length ? `<defs>${k.defs.join('')}</defs>` : '';
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${k.w} ${k.h}" preserveAspectRatio="xMidYMid slice">${defs}${body}</svg>\n`;
 }

@@ -417,6 +417,17 @@ legend { padding: 0; margin-bottom: 8px; }
 @keyframes m-bob { 0%, 100% { translate: 0 0; rotate: -1.6deg; } 50% { translate: 0 -8px; rotate: 1.6deg; } }
 @keyframes w-wade { 0%, 100% { translate: 0 0; } 50% { translate: 0 4px; } }
 @keyframes w-sway { 0%, 100% { rotate: -1.4deg; } 50% { rotate: 1.4deg; } }
+/* The battle, one motion per figure. The warriors of Mactan face left, toward the retreat. */
+@keyframes w-thrust { 0%, 55%, 100% { translate: 0 0; rotate: 0deg; } 66% { translate: -18px -2px; rotate: -4deg; } 76% { translate: 3px 0; rotate: 1deg; } }
+@keyframes w-hop { 0%, 62%, 100% { translate: 0 0; rotate: 0deg; } 20% { translate: 0 -14px; rotate: -3deg; } 36% { translate: 0 0; rotate: 1.5deg; } 50% { translate: 0 -6px; rotate: 0deg; } }
+/* Arm motions, each swinging about its own shoulder. */
+@keyframes w-throw { 0%, 100% { rotate: 0deg; } 45% { rotate: 14deg; } 58% { rotate: -38deg; } 72% { rotate: -30deg; } }
+@keyframes w-parry { 0%, 60%, 100% { rotate: 0deg; } 70% { rotate: -18deg; } 82% { rotate: 6deg; } }
+@keyframes w-arc { 0%, 100% { rotate: -22deg; } 50% { rotate: 26deg; } }
+@keyframes w-jab { 0%, 55%, 100% { rotate: 0deg; } 66% { rotate: -6deg; } 76% { rotate: 2deg; } }
+@keyframes w-stumble { 0%, 60%, 100% { translate: 0 0; rotate: 0deg; } 70% { translate: -6px 3px; rotate: -9deg; } 82% { translate: -4px 0; rotate: 2deg; } }
+@keyframes w-backstep { 0%, 100% { translate: 0 0; } 50% { translate: -14px 4px; } }
+@keyframes w-flinch { 0%, 70%, 100% { translate: 0 0; rotate: 0deg; } 78% { translate: -3px 0; rotate: 5deg; } 88% { translate: 0 0; rotate: -2deg; } }
 @keyframes w-breathe { 0%, 100% { scale: 1 1; } 50% { scale: 1.006 1.014; } }
 @keyframes w-flutter { 0%, 100% { rotate: -5deg; } 50% { rotate: 9deg; } }
 @keyframes w-pulse { 0%, 100% { scale: 1; } 50% { scale: 1.06; } }
@@ -460,22 +471,30 @@ legend { padding: 0; margin-bottom: 8px; }
   .w-ship-2 .w-bob, .w-vinta-r .w-bob { animation-delay: -1.7s; }
   .w-retreat .w-bob { animation-duration: 2.6s; }
   .w-wade { transform-box: fill-box; transform-origin: 50% 100%; animation: w-wade 2.2s ease-in-out infinite; }
-  .w-wade:nth-child(odd) { animation-delay: -1.1s; }
+  .w-wade:nth-child(2) { animation: w-stumble 3.1s ease-in-out infinite; }  /* loses his footing on the reef */
+  .w-wade:nth-child(3) { animation: w-backstep 2.6s ease-in-out infinite; } /* backs toward the boat */
+  .w-wade:nth-child(4) { animation: w-flinch 2.3s ease-in-out infinite; }   /* ducks from a thrown spear */
+  .w-wade:nth-child(5) { animation-delay: -1.1s; }
   .w-palm { transform-box: fill-box; transform-origin: 50% 100%; animation: w-sway 5.5s ease-in-out infinite; }
   .w-palm:nth-of-type(2n) { animation-delay: -2.4s; animation-duration: 6.4s; }
   .w-sway { transform-box: fill-box; transform-origin: 50% 100%; animation: w-sway 3.6s ease-in-out infinite; }
   .w1 .w-sway { animation-delay: -0.9s; }
-  .w2 .w-sway { animation-delay: -1.8s; }
+  .w1 .w-arm { animation: w-throw 2.8s cubic-bezier(0.5, 0, 0.2, 1) infinite; }      /* winds up, hurls, recovers */
+  .w2 .w-sway { animation: w-hop 2.1s ease-in-out infinite -0.7s; }                  /* war-dance hop behind the shield */
+  .w2 .w-arm { animation: w-parry 2.1s ease-in-out infinite -0.7s; }                 /* parries low on the landing */
   .w3 .w-sway { animation-delay: -2.7s; }
+  .w3 .w-arm { animation: w-arc 1.9s ease-in-out infinite; }                         /* swings the spear overhead */
+  .w4 .w-sway { animation: w-thrust 2.4s cubic-bezier(0.5, 0, 0.3, 1) infinite; }   /* lunges at the enemy... */
+  .w4 .w-arm { animation: w-jab 2.4s cubic-bezier(0.5, 0, 0.3, 1) infinite; }       /* ...and jabs with the lunge */
   .w-breathe { transform-box: fill-box; transform-origin: 50% 100%; animation: w-breathe 3.8s ease-in-out infinite; }
   .w-putong { transform-box: fill-box; transform-origin: 0 0; animation: w-flutter 1.2s ease-in-out infinite; }
   .w-halo { transform-box: fill-box; transform-origin: 50% 50%; animation: w-pulse 3s ease-in-out infinite; }
   .w-glint { animation: w-glint 4.5s ease-in-out infinite; } /* sunlight breathing on the water */
 
-  .stage :is(.w-spin, .m-waves-a, .m-waves-b, .w-bob, .w-wade, .w-palm, .w-sway, .w-breathe, .w-putong, .w-halo, .w-glint) { animation-play-state: paused; }
-  .stage.is-panorama:not(.is-paused) :is(.w-spin, .m-waves-a, .m-waves-b, .w-bob, .w-wade, .w-palm, .w-sway, .w-breathe, .w-putong, .w-halo, .w-glint),
-  .stage.is-morphing :is(.w-spin, .m-waves-a, .m-waves-b, .w-bob, .w-wade, .w-palm, .w-sway, .w-breathe, .w-putong, .w-halo, .w-glint),
-  .stage.is-arch:is(:hover, :focus-within) :is(.w-spin, .m-waves-a, .m-waves-b, .w-bob, .w-wade, .w-palm, .w-sway, .w-breathe, .w-putong, .w-halo, .w-glint) { animation-play-state: running; }
+  .stage :is(.w-spin, .m-waves-a, .m-waves-b, .w-bob, .w-wade, .w-palm, .w-sway, .w-breathe, .w-putong, .w-halo, .w-glint, .w-arm) { animation-play-state: paused; }
+  .stage.is-panorama:not(.is-paused) :is(.w-spin, .m-waves-a, .m-waves-b, .w-bob, .w-wade, .w-palm, .w-sway, .w-breathe, .w-putong, .w-halo, .w-glint, .w-arm),
+  .stage.is-morphing :is(.w-spin, .m-waves-a, .m-waves-b, .w-bob, .w-wade, .w-palm, .w-sway, .w-breathe, .w-putong, .w-halo, .w-glint, .w-arm),
+  .stage.is-arch:is(:hover, :focus-within) :is(.w-spin, .m-waves-a, .m-waves-b, .w-bob, .w-wade, .w-palm, .w-sway, .w-breathe, .w-putong, .w-halo, .w-glint, .w-arm) { animation-play-state: running; }
 }
 
 /* ---------- Story page ---------- */
