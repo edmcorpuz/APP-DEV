@@ -5,17 +5,21 @@
   - Poiret One for the masthead only; Josefin Sans for headlines and labels; Didact Gothic for reading.
   - Uppercase spaced labels are deliberate here: Deco marquee lettering (R-06 reason).
   - Motifs: double gold frames, scalloped wave bands, eight-ray sunburst, arched window.
+  - Round 5: felt-paper grain, poster sky gradients, metallic lettering, okir scrolls, vinta stripes.
 */
 
 :root {
   --bg: #f4eedf;
   --card: #fbf7ee;
+  --card-deep: #f1e6cc;   /* bottom of the card gradient */
   --ink: #13201f;
   --muted: #4f5b57;
   --gold: #a9823a;        /* rules and frames (3.05:1, non-text) */
-  --gold-text: #7a5a1f;   /* 5.48:1 plain, 4.62:1 over the darkest texture pixel */
+  --gold-text: #5f4614;   /* darker than before so it holds 4.5:1 over sky, rays and felt together */
   --gold-fill: #d2ae5c;   /* filled label, ink text on it (7.93:1) */
+  --gold-hi: #ead08a; --gold-lo: #bf9848; /* metallic fill ends, ink text stays above 6:1 */
   --sea: #0e4744;         /* primary button, ivory text (9.06:1) */
+  --sea-hi: #1b6460;      /* top of the button gradient (ivory 5.9:1) */
   --on-sea: #f4eedf;
   --danger: #a3271f;
   --night: #0d1918;       /* footer, always dark */
@@ -24,12 +28,24 @@
   --head: 'Josefin Sans', 'Century Gothic', 'Futura', sans-serif;
   --text: 'Didact Gothic', 'Century Gothic', system-ui, sans-serif;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  /* Texture (R-07 reason: capiz/abaca paper grain plus a T'nalak diamond lattice ties the page
-     to Filipino weaving). Kept faint: text was checked against the darkest texture pixel. */
-  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .32 0 0 0 0 .24 0 0 0 0 .12 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* Felt paper: fine fibres (high-frequency noise) whose density is mottled by a slow cloud,
+     the way pressed abaca felt takes dye unevenly. Kept faint; text checked at the darkest pixel. */
+  --felt: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='f' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.011' numOctaves='2' seed='4' stitchTiles='stitch' result='m'/%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' seed='9' stitchTiles='stitch' result='g'/%3E%3CfeComposite in='g' in2='m' operator='arithmetic' k2='.6' k3='.6'/%3E%3CfeColorMatrix values='0 0 0 0 .32 0 0 0 0 .24 0 0 0 0 .12 0 0 0 .085 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+  --felt-night: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='f' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.011' numOctaves='2' seed='4' stitchTiles='stitch' result='m'/%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' seed='9' stitchTiles='stitch' result='g'/%3E%3CfeComposite in='g' in2='m' operator='arithmetic' k2='.6' k3='.6'/%3E%3CfeColorMatrix values='0 0 0 0 .95 0 0 0 0 .9 0 0 0 0 .8 0 0 0 .065 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+  /* T'nalak (T'boli, South Cotabato) diamond lattice. */
   --lattice: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cpath d='M28 3 53 28 28 53 3 28Z' fill='none' stroke='%23a9823a' stroke-opacity='.1'/%3E%3Cpath d='M28 22 34 28 28 34 22 28Z' fill='%23a9823a' fill-opacity='.1'/%3E%3C/svg%3E");
-  --rays: repeating-conic-gradient(from -90deg at 50% 100%, rgb(169 130 58 / 0.06) 0deg 3deg, transparent 3deg 9deg);
+  --rays: repeating-conic-gradient(from -90deg at 50% 100%, rgb(169 130 58 / 0.08) 0deg 3deg, transparent 3deg 9deg);
   --waves: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='20' viewBox='0 0 40 20'%3E%3Cpath d='M0 20a20 20 0 0 1 40 0' fill='none' stroke='%23a9823a' stroke-width='2'/%3E%3Cpath d='M8 20a12 12 0 0 1 24 0' fill='none' stroke='%23a9823a' stroke-width='2'/%3E%3C/svg%3E");
+  /* Okir (Maranao): a vine scroll with curled tips, used where the plain double rule used to be. */
+  --okir: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='16' viewBox='0 0 48 16'%3E%3Cg fill='none' stroke='%23ad8b44' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='M0 8C6 8 6 2 12 2S18 8 24 8S30 14 36 14S42 8 48 8'/%3E%3Cpath d='M12 2c-3.5 0-4.5 3.6-2.2 5 1.6 1 3.2-.4 2.4-1.8'/%3E%3Cpath d='M36 14c3.5 0 4.5-3.6 2.2-5-1.6-1-3.2.4-2.4 1.8'/%3E%3Cpath d='M22 10l4-4'/%3E%3C/g%3E%3C/svg%3E");
+  /* Vinta sail (Zamboanga) stripes in the Deco palette: the band across the top of the header. */
+  --vinta: repeating-linear-gradient(90deg, #a3271f 0 36px, #d2ae5c 36px 72px, #0e4744 72px 108px, #2f5f86 108px 144px, #e9dcc0 144px 156px);
+  /* Poster sky: banded dusk gradient with a sunrise glow on the horizon, as on 1930s travel posters. */
+  --sky: linear-gradient(180deg, #e6d9bc, #f4eedf 55%, #f1e1c0);
+  --glow: radial-gradient(ellipse 58% 62% at 50% 100%, rgb(222 170 86 / 0.36), transparent 72%);
+  /* Metallic gold lettering. Light: darkest stop to #8f6c2a, which still clears 3:1 for display text. */
+  --metal: linear-gradient(180deg, #4a360f 10%, #8f6c2a 58%, #5e4515 92%);
+  --metal-night: linear-gradient(180deg, #f7e6b8 10%, #d8b568 55%, #a9823a 92%);
 
   color-scheme: light;
   font-family: var(--text);
@@ -39,28 +55,37 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --bg: #0d1918; --card: #132422; --ink: #f1e9d6; --muted: #b4b9ae; --gold: #b8954d;
-    --gold-text: #d8b568; --gold-fill: #d8b568; --sea: #d8b568; --on-sea: #0d1918; --danger: #f08a7e;
-    --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .95 0 0 0 0 .9 0 0 0 0 .8 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    --bg: #0d1918; --card: #132422; --card-deep: #0e1c1b; --ink: #f1e9d6; --muted: #b4b9ae; --gold: #b8954d;
+    --gold-text: #d8b568; --gold-fill: #d8b568; --gold-hi: #f0d79a; --gold-lo: #c29d52;
+    --sea: #d8b568; --sea-hi: #f0d79a; --on-sea: #0d1918; --danger: #f08a7e;
+    --felt: var(--felt-night);
     --lattice: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cpath d='M28 3 53 28 28 53 3 28Z' fill='none' stroke='%23b8954d' stroke-opacity='.12'/%3E%3Cpath d='M28 22 34 28 28 34 22 28Z' fill='%23b8954d' fill-opacity='.12'/%3E%3C/svg%3E");
-    --rays: repeating-conic-gradient(from -90deg at 50% 100%, rgb(184 149 77 / 0.07) 0deg 3deg, transparent 3deg 9deg);
+    --rays: repeating-conic-gradient(from -90deg at 50% 100%, rgb(216 181 104 / 0.09) 0deg 3deg, transparent 3deg 9deg);
+    --sky: linear-gradient(180deg, #071110, #0d1918 40%, #153029 80%, #23392c);
+    --glow: radial-gradient(ellipse 55% 62% at 50% 100%, rgb(216 168 84 / 0.3), transparent 72%);
+    --metal: var(--metal-night);
     color-scheme: dark;
   }
 }
 :root[data-theme='dark'] {
-  --bg: #0d1918; --card: #132422; --ink: #f1e9d6; --muted: #b4b9ae; --gold: #b8954d;
-  --gold-text: #d8b568; --gold-fill: #d8b568; --sea: #d8b568; --on-sea: #0d1918; --danger: #f08a7e;
-  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .95 0 0 0 0 .9 0 0 0 0 .8 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --bg: #0d1918; --card: #132422; --card-deep: #0e1c1b; --ink: #f1e9d6; --muted: #b4b9ae; --gold: #b8954d;
+  --gold-text: #d8b568; --gold-fill: #d8b568; --gold-hi: #f0d79a; --gold-lo: #c29d52;
+  --sea: #d8b568; --sea-hi: #f0d79a; --on-sea: #0d1918; --danger: #f08a7e;
+  --felt: var(--felt-night);
   --lattice: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cpath d='M28 3 53 28 28 53 3 28Z' fill='none' stroke='%23b8954d' stroke-opacity='.12'/%3E%3Cpath d='M28 22 34 28 28 34 22 28Z' fill='%23b8954d' fill-opacity='.12'/%3E%3C/svg%3E");
-  --rays: repeating-conic-gradient(from -90deg at 50% 100%, rgb(184 149 77 / 0.07) 0deg 3deg, transparent 3deg 9deg);
+  --rays: repeating-conic-gradient(from -90deg at 50% 100%, rgb(216 181 104 / 0.09) 0deg 3deg, transparent 3deg 9deg);
+  --sky: linear-gradient(180deg, #071110, #0d1918 40%, #153029 80%, #23392c);
+  --glow: radial-gradient(ellipse 55% 62% at 50% 100%, rgb(216 168 84 / 0.3), transparent 72%);
+  --metal: var(--metal-night);
   color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
 body {
   margin: 0; font-size: 1.05rem; line-height: 1.65; -webkit-font-smoothing: antialiased;
-  background: var(--grain), var(--lattice), var(--bg);
-  background-size: 220px 220px, 56px 56px, auto;
+  background: var(--felt), var(--lattice), var(--bg);
+  background-size: 300px 300px, 56px 56px, auto;
+  container-type: inline-size; /* lets the full-bleed masthead use cqw, which excludes the scrollbar (vw does not) */
 }
 h1, h2, h3 { font-family: var(--head); font-weight: 700; line-height: 1.1; letter-spacing: 0.005em; text-wrap: balance; margin: 0; }
 p { text-wrap: pretty; }
@@ -80,10 +105,11 @@ button:disabled { cursor: not-allowed; }
 
 /* A gold rule on each side of a centred label: the Deco "title plate". */
 .plate { display: flex; align-items: center; justify-content: center; gap: 16px; text-align: center; }
-.plate::before, .plate::after { content: ''; flex: 1; max-width: 120px; border-top: 3px double var(--gold); }
+.plate::before, .plate::after { content: ''; flex: 1; max-width: 120px; height: 16px; background: var(--okir) repeat-x center / 48px 16px; }
+.plate::after { scale: -1 1; } /* the scroll mirrors, so both vines grow toward the label */
 
 /* ---------- Header ---------- */
-.site-header { background: var(--bg); border-bottom: 3px double var(--gold); position: sticky; top: 0; z-index: 10; }
+.site-header { background: var(--vinta) top / 100% 4px no-repeat, var(--felt), var(--bg); border-bottom: 3px double var(--gold); position: sticky; top: 0; z-index: 10; }
 .header-row { display: flex; align-items: center; gap: 8px; min-height: 68px; }
 .wordmark {
   display: inline-flex; align-items: center; gap: 10px; min-height: 44px; margin-right: auto;
@@ -109,7 +135,7 @@ button:disabled { cursor: not-allowed; }
   .button.menu-button { display: inline-flex; }
   .site-nav {
     display: none; position: absolute; inset: 71px 0 auto 0; flex-direction: column; align-items: stretch;
-    padding: 4px 16px 12px; background: var(--bg); border-bottom: 3px double var(--gold);
+    padding: 4px 16px 12px; background: var(--felt), var(--bg); border-bottom: 3px double var(--gold);
   }
   .site-nav.open { display: flex; animation: unfold 220ms var(--ease); }
   .site-nav a, .site-nav .link-button, .site-nav .who { min-height: 50px; padding: 0; border-bottom: 1px solid var(--gold); background-image: none; }
@@ -127,7 +153,7 @@ button:disabled { cursor: not-allowed; }
 .button:hover { outline-color: var(--gold); }
 .button:active { transform: scale(0.97); }
 .button:focus-visible { outline: 2px solid var(--ink); }
-.button.primary { background: var(--sea); color: var(--on-sea); border-color: var(--sea); }
+.button.primary { background: var(--felt), linear-gradient(180deg, var(--sea-hi), var(--sea) 70%); color: var(--on-sea); border-color: var(--sea); }
 .button.primary:hover { outline-color: var(--sea); }
 .button.danger { color: var(--danger); border-color: var(--danger); }
 .button.danger:hover { outline-color: var(--danger); }
@@ -138,7 +164,11 @@ button:disabled { cursor: not-allowed; }
 /* ---------- Masthead: a symmetric facade ---------- */
 main.wrap { padding-block: 0 0; min-height: 70vh; }
 /* Faint sunburst fanning up from the mural: the motif carried into the page itself. */
-.masthead { text-align: center; padding: 40px 0 0; background: var(--rays); }
+/* Full-bleed poster sky: the section reaches the window edges while its content stays on the grid. */
+.masthead {
+  text-align: center; padding: 40px calc(50cqw - 50%) 0; margin-inline: calc(50% - 50cqw);
+  background: var(--felt), var(--rays), var(--glow), var(--sky);
+}
 .masthead .kicker { color: var(--gold-text); margin: 0 0 18px; }
 .masthead h1 {
   font: 400 clamp(3.2rem, 12vw, 9.5rem)/0.95 var(--marquee); letter-spacing: 0.06em; text-transform: uppercase;
@@ -182,7 +212,8 @@ main.wrap { padding-block: 0 0; min-height: 70vh; }
 /* ---------- Lead story: the framed feature ---------- */
 .lead {
   position: relative; margin: 56px 8px 56px; padding: clamp(28px, 5vw, 56px) clamp(20px, 5vw, 64px);
-  background: var(--card); border: 1px solid var(--gold); outline: 1px solid var(--gold); outline-offset: 7px;
+  background: var(--felt), linear-gradient(180deg, var(--card) 35%, var(--card-deep));
+  border: 1px solid var(--gold); outline: 1px solid var(--gold); outline-offset: 7px;
   text-align: center; display: grid; gap: 18px; justify-items: center;
 }
 /* Quarter-sunburst fans in two corners: the Deco corner piece marking the feature. */
@@ -193,8 +224,8 @@ main.wrap { padding-block: 0 0; min-height: 70vh; }
 }
 .lead::before { top: 10px; left: 10px; }
 .lead::after { bottom: 10px; right: 10px; rotate: 180deg; }
-.lead .ornament { position: absolute; top: -22px; left: 50%; translate: -50% 0; width: 64px; padding: 0 10px; background: var(--bg); color: var(--gold); }
-.tag { display: inline-flex; gap: 8px; padding: 6px 12px; background: var(--gold-fill); color: #13201f; }
+.lead .ornament { position: absolute; top: -22px; left: 50%; translate: -50% 0; width: 64px; padding: 0 10px; background: var(--felt), var(--bg); color: var(--gold); }
+.tag { display: inline-flex; gap: 8px; padding: 6px 12px; background: linear-gradient(180deg, var(--gold-hi), var(--gold-fill) 55%, var(--gold-lo)); color: #13201f; }
 .lead h2 { font-size: clamp(2.2rem, 5.5vw, 4.2rem); max-width: 18ch; }
 .lead h2 a { text-decoration: none; background: linear-gradient(currentColor, currentColor) 50% 100% / 0 2px no-repeat; transition: background-size 420ms var(--ease); }
 .lead h2 a::after { content: ''; position: absolute; inset: 0; }
@@ -216,7 +247,7 @@ main.wrap { padding-block: 0 0; min-height: 70vh; }
 .row h3 a::after { content: ''; position: absolute; inset: 0; }
 .row .meta, .row .excerpt { grid-column: 2; }
 .row .excerpt { margin: 2px 0 0; color: var(--muted); max-width: 64ch; }
-.row:hover, .row:focus-within { background: var(--card); }
+.row:hover, .row:focus-within { background: var(--felt), linear-gradient(90deg, var(--card), var(--card-deep)); }
 .row:hover h3 a, .row h3 a:focus-visible { background-size: 100% 1px; }
 @media (min-width: 900px) {
   .row { grid-template-columns: 4.5rem 1fr auto; }
@@ -227,7 +258,7 @@ main.wrap { padding-block: 0 0; min-height: 70vh; }
 .state { padding: 56px 0; max-width: 50ch; margin-inline: auto; text-align: center; }
 .state h1, .state h2 { font-size: clamp(1.9rem, 4vw, 2.6rem); margin-bottom: 10px; }
 .state p { margin: 0 0 24px; color: var(--muted); }
-.notice { display: inline-flex; gap: 10px; margin: 28px 0 0; padding: 10px 16px; background: var(--gold-fill); color: #13201f; font-family: var(--head); font-weight: 600; }
+.notice { display: inline-flex; gap: 10px; margin: 28px 0 0; padding: 10px 16px; background: linear-gradient(180deg, var(--gold-hi), var(--gold-fill) 55%, var(--gold-lo)); color: #13201f; font-family: var(--head); font-weight: 600; }
 .error-text { margin: 0; padding: 10px 12px; border: 1px solid var(--danger); color: var(--danger); font-weight: 600; }
 .skeleton { display: grid; gap: 14px; padding: 48px 0; justify-items: center; }
 .skeleton span { display: block; height: 1rem; width: 60%; background: color-mix(in srgb, var(--gold) 28%, transparent); }
@@ -265,7 +296,7 @@ main.wrap { padding-block: 0 0; min-height: 70vh; }
 .form label, .form legend { display: grid; gap: 8px; font: 600 0.92rem var(--head); letter-spacing: 0.02em; }
 input, textarea, select {
   width: 100%; min-height: 48px; padding: 12px 14px; font: 1rem var(--text);
-  color: var(--ink); background: var(--card); border: 1px solid var(--gold); border-radius: 0;
+  color: var(--ink); background: var(--felt), var(--card); border: 1px solid var(--gold); border-radius: 0;
 }
 input:hover, textarea:hover { border-color: var(--ink); }
 input:focus-visible, textarea:focus-visible { outline-offset: 2px; }
@@ -277,7 +308,7 @@ fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 10px; }
 legend { padding: 0; margin-bottom: 8px; }
 .choice {
   display: grid !important; grid-template-columns: auto 1fr; gap: 2px 14px !important; align-items: start;
-  padding: 14px 16px; border: 1px solid var(--gold); background: var(--card); transition: outline-color 200ms;
+  padding: 14px 16px; border: 1px solid var(--gold); background: var(--felt), linear-gradient(180deg, var(--card), var(--card-deep)); transition: outline-color 200ms;
   outline: 1px solid transparent; outline-offset: 3px;
 }
 .choice input { width: 20px; height: 20px; min-height: 0; margin: 2px 0 0; accent-color: var(--sea); grid-row: span 2; }
@@ -293,12 +324,25 @@ legend { padding: 0; margin-bottom: 8px; }
 .editor .bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; padding-top: 16px; border-top: 3px double var(--gold); }
 
 /* ---------- Footer: always night sea ---------- */
-.site-footer { background: var(--night); color: #f1e9d6; margin-top: 0; }
+/* Night-sea poster: moonlight on the horizon, darker toward the bottom edge. */
+.site-footer {
+  color: #f1e9d6; margin-top: 0;
+  background: var(--felt-night), radial-gradient(ellipse 60% 80% at 50% 0%, rgb(216 181 104 / 0.16), transparent 70%), linear-gradient(180deg, #13261f, var(--night) 55%, #070f0e);
+}
 .site-footer .waves { filter: brightness(1.15); }
 .site-footer .wrap { display: grid; justify-items: center; gap: 10px; padding-block: 48px 56px; text-align: center; }
 .site-footer .big { font: 400 clamp(2.4rem, 7vw, 4.4rem)/1 var(--marquee); text-transform: uppercase; letter-spacing: 0.05em; }
 .site-footer .small { color: #b4b9ae; font-size: 0.9rem; }
 .site-footer svg { width: 44px; color: #d8b568; }
+
+/* ---------- Metallic gold display lettering (one gradient per line) ---------- */
+.masthead h1 span, .split h1, .editor h1, .site-footer .big {
+  background: var(--metal) 0 0 / 100% 1lh; -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.site-footer .big { background-image: var(--metal-night); }
+@media (forced-colors: active) {
+  .masthead h1 span, .split h1, .editor h1, .site-footer .big { background: none; color: CanvasText; }
+}
 
 /* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {

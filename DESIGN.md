@@ -48,7 +48,7 @@ inevitable.
 | Ink | `#13201F` | `#F1E9D6` | 14.47:1 / 14.85:1 |
 | Muted text | `#4F5B57` | `#B4B9AE` | 6.12:1 / 8.97:1 |
 | Gold rule (lines, frames) | `#A9823A` | `#B8954D` | 3.05:1 / 6.37:1 non-text |
-| Gold text (labels) | `#7A5A1F` | `#D8B568` | 5.48:1 plain, 4.62:1 on the darkest texture pixel / 6.98:1 |
+| Gold text (labels) | `#5F4614` | `#D8B568` | 5.04:1 on the darkest pixel of sky + rays + felt / 6.98:1 |
 | Gold fill (with ink text) | `#D2AE5C` | `#D8B568` | 7.93:1 / 9.18:1 |
 | Sea (primary button, ivory text) | `#0E4744` | `#1B5E59` | 9.06:1 / 6.22:1 |
 | Danger | `#A3271F` | `#F08A7E` | 6.33:1 / 7.39:1 |
@@ -126,3 +126,18 @@ Salamat sa pagbasa (thank you for reading). A native speaker should proofread th
 - Wave bands as section dividers: the Visayan sea, drawn as a Deco stepped pattern; they mark section starts.
 - Arched window for the artwork: the arch of Filipino church windows and Deco facades.
 - Symmetric, centred masthead: Deco facades are symmetric; the story list and article stay left-aligned for reading.
+
+## Round 5: poster surfaces and Mindanao motifs (22 Nov 2026)
+
+References: 1930s Deco travel and film posters (banded dusk skies, rays fanning from the horizon,
+metallic display lettering). Asked for: gradient textures, felt paper, Art Deco, Mindanaoan.
+Layout, copy and components are unchanged; only surfaces changed (all in `frontend/src/index.css`).
+
+- **Felt paper** (`--felt`): fine fibres mottled by a slow noise cloud, on the page, header, cards, inputs and buttons.
+- **Poster sky** (`--sky`, `--glow`, `--rays`): the masthead is full-bleed, with a dusk gradient, a sunrise glow behind the mural and stronger rays. Full bleed uses `cqw` on a body container so it never adds a horizontal scrollbar.
+- **Metallic lettering** (`--metal`): gold gradient on the masthead, form and editor titles and the footer line, one gradient per line (`1lh`). Falls back to plain text in forced-colors mode.
+- **Okir** (Maranao vine scroll, `--okir`): replaces the double rule beside centred labels.
+- **Vinta stripes** (Zamboanga sail, `--vinta`): a 4px band across the top of the header.
+- **T'nalak lattice** (T'boli, South Cotabato): kept from round 3.
+- Gradients on the lead card, story rows (hover), role choices, the primary button and the gold tags.
+- Contrast re-checked: gold text darkened to `#5F4614` to keep 4.5:1 over sky, rays and felt together.
